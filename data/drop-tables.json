@@ -1,0 +1,64 @@
+{
+  "dropTables": [
+    {
+      "id": "base-1",
+      "name": "Base Table",
+      "rows": [
+        {
+          "rarity": "common",
+          "weight": 85
+        },
+        {
+          "rarity": "rare",
+          "weight": 10
+        },
+        {
+          "rarity": "epic",
+          "weight": 4
+        },
+        {
+          "rarity": "legendary",
+          "weight": 1,
+          "pityEvery": 10
+        }
+      ]
+    }
+  ],
+  "packs": [
+    {
+      "id": "starter",
+      "name": "Starter Pack",
+      "price": {
+          "amount": 100,
+        "currency": "Credits"
+      },
+      "tableId": "base-1"
+    }
+  ],
+  "items": [
+    {
+      "id": "itm_001",
+      "name": "Neon Feather",
+      "rarity": "common",
+      "artUrl": "/mock/art/feather.png"
+    },
+    {
+      "id": "itm_002",
+      "name": "Holo Pick",
+      "rarity": "rare",
+      "artUrl": "/mock/art/pick.png"
+    },
+    {
+      "id": "itm_003",
+      "name": "Retro Disc",
+      "rarity": "epic",
+      "artUrl": "/mock/art/disc.png"
+    },
+    {
+      "id": "itm_004",
+      "name": "Aurora Blade",
+      "rarity": "legendary",
+      "artUrl": "/mock/art/blade.png"
+    }
+  ]
+}
