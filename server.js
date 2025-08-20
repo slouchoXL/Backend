@@ -15,7 +15,7 @@ app.use(express.json());
 
 const db = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'drop-tables.json')));
 const state = {
-  balance: { COIN: 1000 },
+  balance: { COIN: 9000 },
   inventory: [],
   pity: { legendarySince: 0 },
   idempo: new Map()
