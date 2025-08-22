@@ -118,6 +118,18 @@ function pickRarity(table){
 
 // -------- Routes --------------------------------------------------------
 
+// Who am I? (debug)
+app.get('/api/debug/whoami', (req, res) => {
+  res.json({
+    playerId: req.playerId,            // what the server will use for storage
+    authed: !!req.user,                // true if a Supabase JWT was verified
+    userSub: req.user?.sub || null,    // Supabase user id if authed
+    // show which id headers arrived (for sanity):
+    sawAuthorization: !!req.get('authorization'),
+    sawXPlayerId: !!req.get('x-player-id'),
+  });
+});
+
 // Packs list (public)
 app.get('/api/packs', (_req, res) => {
   res.json({ packs: db.packs });
