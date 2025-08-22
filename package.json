@@ -8,7 +8,9 @@
   },
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^4.19.2",
-    "nanoid": "^5.0.7"
+    "dotenv": "^17.2.1",
+    "express": "^4.21.2",
+    "jose": "^6.0.13",
+    "nanoid": "^5.1.5"
   }
 }
