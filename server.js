@@ -5,7 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-//import 'dotenv/config';
+import 'dotenv/config';
 import { jwtVerify } from 'jose';
 
 const __filename = fileURLToPath(import.meta.url);
