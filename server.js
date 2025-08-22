@@ -5,6 +5,9 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+import 'dotenv/config';
+import { jwtVerify } from 'jose';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
 
@@ -12,32 +15,65 @@ const app  = express();
 const PORT = process.env.PORT || 5179;
 
 app.use(express.json());
+
+// CORS: allow your widget origin(s) + auth headers
 app.use(cors({
-  origin: true,
+  origin: true, // echoes the request Origin
   credentials: false,
-  allowedHeaders: ['Content-Type', 'X-Player-Id']
+  allowedHeaders: ['Content-Type', 'X-Player-Id', 'Authorization'],
+  methods: ['GET', 'POST', 'OPTIONS']
 }));
 
-// Identify the player (for now, header or fall back to 'anon')
-app.use((req, _res, next) => {
+/**
+ * AUTH
+ * - If a Supabase JWT is present (Authorization: Bearer ...), trust it and use its `sub` as playerId.
+ * - Otherwise, fall back to your existing X-Player-Id (anon testing).
+ */
+const JWT_SECRET = (process.env.SUPABASE_JWT_SECRET || '').trim();
+const JWT_KEY = JWT_SECRET ? new TextEncoder().encode(JWT_SECRET) : null;
+
+async function authMiddleware(req, _res, next) {
+  // start with your existing fallback (keeps current anon testing intact)
+  req.user = null;
   req.playerId = req.get('X-Player-Id') || 'anon';
+
+  const auth = req.get('authorization') || req.get('Authorization');
+  if (!auth?.startsWith('Bearer ') || !JWT_KEY) {
+    return next(); // no token or no server secret configured → keep fallback
+  }
+
+  const token = auth.slice(7).trim();
+  if (!token) return next();
+
+  try {
+    const { payload } = await jwtVerify(token, JWT_KEY);
+    const sub = payload?.sub || payload?.user_id;
+    if (sub) {
+      req.user = payload;
+      req.playerId = sub; // Supabase user id
+    }
+  } catch {
+    // invalid token → remain in fallback mode
+  }
   next();
-});
+}
+
+app.use(authMiddleware);
 
 // -------- Data + state --------------------------------------------------
 const DB_PATH = path.join(__dirname, 'data', 'drop-tables.json');
 const db = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
 
-// Global state (keep pity & idempotency global for now)
+// Global state (pity + idempotency global is fine for now)
 const state = {
-  balance: { COIN: 9000 },   // legacy (not used after we switch to per-user)
-  inventory: [],             // legacy (stop using for per-user flows)
+  balance: { COIN: 9000 },   // legacy (unused for per-user, still fine to keep)
+  inventory: [],             // legacy (unused for per-user)
   pity: { legendarySince: 0 },
   idempo: new Map(),
   pendingOpens: new Map()    // playerId -> { results:[...], packId, idempotencyKey, openedAt }
 };
 
-// Per-user storage
+// Per-user storage on disk (simple JSON files)
 const USERS_DIR = path.join(__dirname, 'data', 'users');
 if (!fs.existsSync(USERS_DIR)) fs.mkdirSync(USERS_DIR, { recursive: true });
 
@@ -82,18 +118,18 @@ function pickRarity(table){
 
 // -------- Routes --------------------------------------------------------
 
-// Packs list
-app.get('/api/packs', (req, res) => {
+// Packs list (public)
+app.get('/api/packs', (_req, res) => {
   res.json({ packs: db.packs });
 });
 
-// Inventory (per-user)
+// Inventory (per-user; works for signed-in or anon header)
 app.get('/api/inventory', (req, res) => {
   const inv = loadInventory(req.playerId);
   res.json({ balance: inv.balance, items: inv.items });
 });
 
-// OPEN PACK
+// OPEN PACK (charges user balance, returns 5 results, stashes "pending")
 app.post('/api/packs/open', (req, res)=>{
   const { packId, idempotencyKey } = req.body || {};
   if (!packId || !idempotencyKey) {
@@ -111,19 +147,18 @@ app.post('/api/packs/open', (req, res)=>{
     return res.json(entry.response);
   }
 
-  // Intercept final JSON to stash "pending open" for this player
+  // Intercept final JSON to stash "pending open" for this player (don’t overwrite active pending)
   const originalJson = res.json.bind(res);
   res.json = (body) => {
     try {
       const results = body && body.results;
       if (Array.isArray(results) && results.length) {
-        // Guard: don't overwrite existing pending if the user hasn't collected yet
         if (!state.pendingOpens.has(req.playerId)) {
           state.pendingOpens.set(req.playerId, {
             packId,
             idempotencyKey: key,
             openedAt: Date.now(),
-            results   // array of items as returned below
+            results
           });
         }
       }
@@ -144,14 +179,12 @@ app.post('/api/packs/open', (req, res)=>{
   inv.balance.COIN -= pack.price.amount;
   saveInventory(req.playerId, inv);
 
-  // Generate 5 pulls (dupe detection vs this user's inventory)
+  // Generate 5 pulls (avoid repeats within this opening; dupe flag against user inv)
   const table  = db.dropTables.find(t=>t.id===pack.tableId);
   const pullsN = 5;
   const results = [];
 
-  // Avoid repeats *within this opening*
   const openingSeenIds = new Set();
-
   function pickItemForRarity(rarity){
     const pool = db.items.filter(i=>i.rarity === rarity);
     const fresh = pool.filter(i=>!openingSeenIds.has(i.id));
@@ -165,7 +198,6 @@ app.post('/api/packs/open', (req, res)=>{
     const rarity = pickRarity(table);
     const item   = pickItemForRarity(rarity);
     const isDupe = inv.items.some(x=>x.itemId === item.id);
-
     results.push({
       itemId: item.id,
       name:   item.name,
@@ -182,7 +214,7 @@ app.post('/api/packs/open', (req, res)=>{
     results,
     economy: {
       balance: inv.balance,
-      dupeCredit: { COIN: 0 } // (optional) compute/credit later on /collection/add if you want
+      dupeCredit: { COIN: 0 }
     },
     pity: { legendarySince: state.pity.legendarySince }
   };
@@ -191,13 +223,14 @@ app.post('/api/packs/open', (req, res)=>{
   res.json(response);
 });
 
-// ADD TO COLLECTION (consume pending results)
+// ADD TO COLLECTION (consume pending → inventory)
 app.post('/api/collection/add', (req, res) => {
   const { itemIds = [] } = req.body || {};
-  const pending = state.pendingOpens.get(req.playerId); // { results:[...] } or undefined
-  if (!pending || !Array.isArray(pending.results) || !pending.results.length) {
+  const pending = state.pendingOpens.get(req.playerId);
+  if (!pending?.results?.length) {
     return res.status(400).json({ error: 'No pending items to collect.' });
   }
+
   const allowed = new Set(pending.results.map(it => it.itemId));
   const toAddIds = itemIds.filter(id => allowed.has(id));
   if (!toAddIds.length) {
@@ -207,7 +240,6 @@ app.post('/api/collection/add', (req, res) => {
   const inv = loadInventory(req.playerId);
   const byId = new Map(pending.results.map(it => [it.itemId, it]));
 
-  // Move allowed items into inventory (allowing duplicates for now)
   toAddIds.forEach(id => {
     const it = byId.get(id);
     if (it) {
@@ -220,9 +252,7 @@ app.post('/api/collection/add', (req, res) => {
     }
   });
 
-  // Clear pending once collected (even if partial)
   state.pendingOpens.delete(req.playerId);
-
   saveInventory(req.playerId, inv);
   res.json({ ok: true, inventory: inv });
 });
@@ -236,16 +266,11 @@ app.post('/api/dev/grant', (req, res) => {
   res.json({ balance: inv.balance });
 });
 
-// DEV: reset THIS player's data (balance, items, pending)
 app.post('/api/dev/reset', (req, res) => {
   const playerId = req.playerId || 'anon';
-
   const fresh = { balance: { COIN: 1000 }, items: [] };
   saveInventory(playerId, fresh);
-
-  // clear any pending results for this player
   state.pendingOpens.delete(playerId);
-
   res.json({ ok: true, playerId, inventory: fresh });
 });
 
