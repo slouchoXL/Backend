@@ -34,66 +34,7 @@ function requireAdmin() {
   return supaAdmin;
 }
 
-// Deep DB probe: checks connectivity, key validity, and whether tables exist
-app.get('/api/debug/db-deep', async (_req, res) => {
-  try {
-    if (!SUPABASE_URL || !SUPA_SERVICE_ROLE) {
-      return res.status(500).json({ ok:false, phase:'env', error:'Missing SUPABASE_URL or SERVICE_ROLE' });
-    }
 
-    // 1) Basic connectivity: a harmless select against a *public* table we expect to exist
-    // We'll try profiles first (expected in this project). If it 42P01's, table doesn't exist.
-    const testUser = '00000000-0000-0000-0000-000000000000'; // dummy UUID
-    const up1 = await supaAdmin
-      .from('profiles')
-      .upsert({ id: testUser }, { onConflict: 'id', ignoreDuplicates: true });
-
-    // If profiles is missing, this returns an error with code 42P01 (undefined_table)
-    if (up1.error) {
-      return res.status(500).json({
-        ok:false,
-        phase:'profiles_upsert',
-        code: up1.error.code,
-        message: up1.error.message,
-        hint: up1.error.hint || null
-      });
-    }
-
-    // 2) Try a count on inventory_items (should exist once schema is created)
-    const sel2 = await supaAdmin
-      .from('inventory_items')
-      .select('item_id', { count: 'exact', head: true });
-
-    if (sel2.error) {
-      return res.status(500).json({
-        ok:false,
-        phase:'inventory_items_exists',
-        code: sel2.error.code,
-        message: sel2.error.message,
-        hint: sel2.error.hint || null
-      });
-    }
-
-    // 3) Try pending_opens existence
-    const sel3 = await supaAdmin
-      .from('pending_opens')
-      .select('owner_id', { count: 'exact', head: true });
-
-    if (sel3.error) {
-      return res.status(500).json({
-        ok:false,
-        phase:'pending_opens_exists',
-        code: sel3.error.code,
-        message: sel3.error.message,
-        hint: sel3.error.hint || null
-      });
-    }
-
-    return res.json({ ok:true, phases:['profiles_upsert','inventory_items_exists','pending_opens_exists'] });
-  } catch (e) {
-    return res.status(500).json({ ok:false, phase:'unexpected', error: String(e?.message || e) });
-  }
-});
 
 /* -------------------- Node/Express bootstrap ------------------------- */
 const __filename = fileURLToPath(import.meta.url);
@@ -297,6 +238,68 @@ async function dbClearPendingOpen(userId) {
 
 /* -------------------- Debug: env + db + whoami ----------------------- */
 // 1) Are the env vars visible on the server?
+
+// Deep DB probe: checks connectivity, key validity, and whether tables exist
+app.get('/api/debug/db-deep', async (_req, res) => {
+  try {
+    if (!SUPABASE_URL || !SUPA_SERVICE_ROLE) {
+      return res.status(500).json({ ok:false, phase:'env', error:'Missing SUPABASE_URL or SERVICE_ROLE' });
+    }
+
+    // 1) Basic connectivity: a harmless select against a *public* table we expect to exist
+    // We'll try profiles first (expected in this project). If it 42P01's, table doesn't exist.
+    const testUser = '00000000-0000-0000-0000-000000000000'; // dummy UUID
+    const up1 = await supaAdmin
+      .from('profiles')
+      .upsert({ id: testUser }, { onConflict: 'id', ignoreDuplicates: true });
+
+    // If profiles is missing, this returns an error with code 42P01 (undefined_table)
+    if (up1.error) {
+      return res.status(500).json({
+        ok:false,
+        phase:'profiles_upsert',
+        code: up1.error.code,
+        message: up1.error.message,
+        hint: up1.error.hint || null
+      });
+    }
+
+    // 2) Try a count on inventory_items (should exist once schema is created)
+    const sel2 = await supaAdmin
+      .from('inventory_items')
+      .select('item_id', { count: 'exact', head: true });
+
+    if (sel2.error) {
+      return res.status(500).json({
+        ok:false,
+        phase:'inventory_items_exists',
+        code: sel2.error.code,
+        message: sel2.error.message,
+        hint: sel2.error.hint || null
+      });
+    }
+
+    // 3) Try pending_opens existence
+    const sel3 = await supaAdmin
+      .from('pending_opens')
+      .select('owner_id', { count: 'exact', head: true });
+
+    if (sel3.error) {
+      return res.status(500).json({
+        ok:false,
+        phase:'pending_opens_exists',
+        code: sel3.error.code,
+        message: sel3.error.message,
+        hint: sel3.error.hint || null
+      });
+    }
+
+    return res.json({ ok:true, phases:['profiles_upsert','inventory_items_exists','pending_opens_exists'] });
+  } catch (e) {
+    return res.status(500).json({ ok:false, phase:'unexpected', error: String(e?.message || e) });
+  }
+});
+
 app.get('/api/debug/env', (_req, res) => {
   res.json({
     node: process.version,
