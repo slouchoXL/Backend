@@ -141,7 +141,7 @@ async function dbEnsureProfile(userId) {
   const sb = requireAdmin();
   const { error: upErr } = await sb
     .from('profiles')
-    .upsert({ id: user_id: userId }, { onConflict: 'user_id', ignoreDuplicates: true });
+    .upsert({ user_id: userId }, { onConflict: 'user_id', ignoreDuplicates: true });
   if (upErr) throw upErr;
 }
 
