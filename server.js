@@ -152,7 +152,7 @@ async function dbGetInventory(userId) {
   const [{ data: prof, error: profErr }, { data: items, error: itemsErr }] = await Promise.all([
     sb.from('profiles')
       .select('coin_balance')
-      .eq('user_id:', userId)
+      .eq('user_id', userId)
       .maybeSingle(),
     sb.from('inventory_items')
       .select('item_id, name, rarity, art_url, created_at')
@@ -238,6 +238,36 @@ async function dbClearPendingOpen(userId) {
 
 /* -------------------- Debug: env + db + whoami ----------------------- */
 // 1) Are the env vars visible on the server?
+
+// Add this route to test JWT verification
+app.get('/api/debug/auth-test', async (req, res) => {
+  try {
+    const authHeader = req.get('authorization');
+    console.log('Auth header received:', !!authHeader);
+    console.log('Player ID:', req.playerId);
+    console.log('User object:', req.user);
+    console.log('Is UUID:', isUUID(req.playerId));
+    
+    if (isUUID(req.playerId)) {
+      const inventory = await dbGetInventory(req.playerId);
+      return res.json({
+        success: true,
+        playerId: req.playerId,
+        hasSupabase: !!supaAdmin,
+        inventory
+      });
+    }
+    
+    return res.json({
+      success: true,
+      playerId: req.playerId,
+      isAnon: true
+    });
+  } catch (e) {
+    console.error('Auth test error:', e);
+    return res.status(500).json({ error: e.message });
+  }
+});
 
 // Deep DB probe: checks connectivity, key validity, and whether tables exist
 app.get('/api/debug/db-deep', async (_req, res) => {
