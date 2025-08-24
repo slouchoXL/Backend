@@ -10,17 +10,29 @@ import { jwtVerify } from 'jose';
 import { createClient } from '@supabase/supabase-js';
 
 /* -------------------- Supabase Admin (server-side) -------------------- */
-const SUPABASE_URL       = process.env.SUPABASE_URL;
-const SUPA_SERVICE_ROLE  = process.env.SUPABASE_SERVICE_ROLE; // NEVER expose to client
+const SUPABASE_URL        = (process.env.SUPABASE_URL || '').trim();
+const SUPA_SERVICE_ROLE   = (process.env.SUPABASE_SERVICE_ROLE || '').trim(); // NEVER expose to client
 const SUPABASE_JWT_SECRET = (process.env.SUPABASE_JWT_SECRET || '').trim();
 
+// IMPORTANT: only create a client if both envs are present
+let supaAdmin = null;
 if (!SUPABASE_URL || !SUPA_SERVICE_ROLE) {
   console.warn('[supabase] Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE env vars!');
+} else {
+  supaAdmin = createClient(SUPABASE_URL, SUPA_SERVICE_ROLE, {
+    auth: { persistSession: false, autoRefreshToken: false }
+  });
 }
 
-const supaAdmin = createClient(SUPABASE_URL, SUPA_SERVICE_ROLE, {
-  auth: { persistSession: false, autoRefreshToken: false }
-});
+/* small helper so DB fns can bail early with a clear error */
+function requireAdmin() {
+  if (!supaAdmin) {
+    const err = new Error('Supabase admin client not initialized — check SUPABASE_URL and SUPABASE_SERVICE_ROLE env vars on the server.');
+    err.code = 'NO_SUPABASE_ADMIN';
+    throw err;
+  }
+  return supaAdmin;
+}
 
 /* -------------------- Node/Express bootstrap ------------------------- */
 const __filename = fileURLToPath(import.meta.url);
@@ -37,11 +49,7 @@ app.use(cors({
   methods: ['GET', 'POST', 'OPTIONS']
 }));
 
-/* -------------------- Auth middleware --------------------------------
-   - If Authorization: Bearer <supabase_jwt> is present and valid,
-     use Supabase user id (payload.sub) for per-user DB storage.
-   - Else fall back to X-Player-Id / 'anon' => uses local JSON storage.
------------------------------------------------------------------------ */
+/* -------------------- Auth middleware -------------------------------- */
 const JWT_KEY = SUPABASE_JWT_SECRET ? new TextEncoder().encode(SUPABASE_JWT_SECRET) : null;
 
 async function authMiddleware(req, _res, next) {
@@ -73,12 +81,11 @@ const DB_PATH = path.join(__dirname, 'data', 'drop-tables.json');
 const db = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
 
 const state = {
-  balance: { COIN: 9000 },   // legacy (unused in DB mode)
-  inventory: [],             // legacy (unused in DB mode)
+  balance: { COIN: 9000 },
+  inventory: [],
   pity: { legendarySince: 0 },
-  idempo: new Map(),         // idempotency remains in-memory
-  // NOTE: for anon mode we still use in-memory pending to preserve your testing flow
-  pendingOpens: new Map()    // playerId -> { results, packId, idempotencyKey, openedAt }
+  idempo: new Map(),
+  pendingOpens: new Map()
 };
 
 /* -------------------- Local JSON storage (anon fallback) ------------- */
@@ -128,24 +135,24 @@ function pickRarity(table){
 }
 
 /* -------------------- DB helpers (Supabase) -------------------------- */
-// Ensure a profiles row exists for this user (with default coin_balance)
 async function dbEnsureProfile(userId) {
-  // upsert to create if missing
-  const { error: upErr } = await supaAdmin
+  const sb = requireAdmin();
+  const { error: upErr } = await sb
     .from('profiles')
     .upsert({ id: userId }, { onConflict: 'id', ignoreDuplicates: true });
   if (upErr) throw upErr;
 }
 
 async function dbGetInventory(userId) {
+  const sb = requireAdmin();
   await dbEnsureProfile(userId);
 
   const [{ data: prof, error: profErr }, { data: items, error: itemsErr }] = await Promise.all([
-    supaAdmin.from('profiles')
+    sb.from('profiles')
       .select('coin_balance')
       .eq('id', userId)
       .maybeSingle(),
-    supaAdmin.from('inventory_items')
+    sb.from('inventory_items')
       .select('item_id, name, rarity, art_url, created_at')
       .eq('owner_id', userId)
       .order('created_at', { ascending: true })
@@ -166,15 +173,17 @@ async function dbGetInventory(userId) {
 }
 
 async function dbIncBalance(userId, delta) {
-  // Prefer RPC if you created it; otherwise fallback to update+select
-  const { data, error } = await supaAdmin.rpc('inc_balance', { p_user: userId, p_delta: delta });
+  const sb = requireAdmin();
+  // Try RPC if present
+  const { data, error } = await sb.rpc('inc_balance', { p_user: userId, p_delta: delta });
   if (!error) return data;
-  // Fallback (non-atomic across replicas, but fine here)
-  const { data: prof, error: selErr } = await supaAdmin
+
+  // Fallback
+  const { data: prof, error: selErr } = await sb
     .from('profiles').select('coin_balance').eq('id', userId).maybeSingle();
   if (selErr) throw selErr;
   const next = (prof?.coin_balance ?? 0) + delta;
-  const { error: updErr } = await supaAdmin
+  const { error: updErr } = await sb
     .from('profiles').update({ coin_balance: next }).eq('id', userId);
   if (updErr) throw updErr;
   return next;
@@ -184,8 +193,9 @@ async function dbDebitBalance(userId, amount) {
   return dbIncBalance(userId, -amount);
 }
 
-async function dbAddInventoryItems(userId, items /* {itemId,name,rarity,artUrl}[] */) {
+async function dbAddInventoryItems(userId, items) {
   if (!items?.length) return;
+  const sb = requireAdmin();
   const rows = items.map(it => ({
     owner_id: userId,
     item_id:  it.itemId,
@@ -193,19 +203,21 @@ async function dbAddInventoryItems(userId, items /* {itemId,name,rarity,artUrl}[
     rarity:   it.rarity,
     art_url:  it.artUrl ?? null
   }));
-  const { error } = await supaAdmin.from('inventory_items').insert(rows);
+  const { error } = await sb.from('inventory_items').insert(rows);
   if (error) throw error;
 }
 
 // Pending opens stored per user (one active at a time)
-async function dbSetPendingOpen(userId, payload /* {packId,idempotencyKey,openedAt,results[]} */) {
-  const { error } = await supaAdmin
+async function dbSetPendingOpen(userId, payload) {
+  const sb = requireAdmin();
+  const { error } = await sb
     .from('pending_opens')
     .upsert({ owner_id: userId, data: payload }, { onConflict: 'owner_id' });
   if (error) throw error;
 }
 async function dbGetPendingOpen(userId) {
-  const { data, error } = await supaAdmin
+  const sb = requireAdmin();
+  const { data, error } = await sb
     .from('pending_opens')
     .select('data')
     .eq('owner_id', userId)
@@ -214,14 +226,55 @@ async function dbGetPendingOpen(userId) {
   return data?.data || null;
 }
 async function dbClearPendingOpen(userId) {
-  const { error } = await supaAdmin
+  const sb = requireAdmin();
+  const { error } = await sb
     .from('pending_opens')
     .delete()
     .eq('owner_id', userId);
   if (error) throw error;
 }
 
-/* -------------------- Debug: whoami ---------------------------------- */
+/* -------------------- Debug: env + db + whoami ----------------------- */
+// 1) Are the env vars visible on the server?
+app.get('/api/debug/env', (_req, res) => {
+  res.json({
+    node: process.version,
+    has_SUPABASE_URL:        !!SUPABASE_URL,
+    has_SUPABASE_SERVICE_ROLE: !!SUPA_SERVICE_ROLE,
+    has_SUPABASE_JWT_SECRET: !!SUPABASE_JWT_SECRET,
+    // lengths only; never echo secrets
+    SUPABASE_URL_len:        SUPABASE_URL ? SUPABASE_URL.length : 0,
+    SERVICE_ROLE_len:        SUPA_SERVICE_ROLE ? SUPA_SERVICE_ROLE.length : 0,
+    jwt_secret_len:          SUPABASE_JWT_SECRET ? SUPABASE_JWT_SECRET.length : 0
+  });
+});
+
+// 2) Can we talk to Supabase and see the tables?
+app.get('/api/debug/db', async (_req, res) => {
+  try {
+    const sb = requireAdmin();
+    const [p, i, po] = await Promise.all([
+      sb.from('profiles').select('id, coin_balance').limit(1),
+      sb.from('inventory_items').select('owner_id, item_id').limit(1),
+      sb.from('pending_opens').select('owner_id').limit(1)
+    ]);
+    res.json({
+      ok: true,
+      profiles_ok: !p.error,
+      inventory_items_ok: !i.error,
+      pending_opens_ok: !po.error,
+      samples: {
+        profiles: p.data || [],
+        inventory_items: i.data || [],
+        pending_opens: po.data || []
+      }
+    });
+  } catch (e) {
+    res.status(500).json({ ok:false, error: String(e.message || e), code: e.code || null });
+  }
+});
+
+// (kept) 3) Who am I?
 app.get('/api/debug/whoami', (req, res) => {
   res.json({
     playerId: req.playerId,
@@ -253,7 +306,7 @@ app.get('/api/inventory', async (req, res) => {
   }
 });
 
-// OPEN PACK (charges once, returns 5 results, stores "pending")
+// OPEN PACK (unchanged flow; DB vs anon branch)
 app.post('/api/packs/open', async (req, res) => {
   try {
     const { packId, idempotencyKey } = req.body || {};
@@ -261,7 +314,6 @@ app.post('/api/packs/open', async (req, res) => {
       return res.status(400).json({ error:'packId and idempotencyKey are required' });
     }
 
-    // Idempotency (in-memory, unchanged)
     const key = String(idempotencyKey);
     const requestHash = hashRequest({ packId });
     if (state.idempo.has(key)) {
@@ -272,11 +324,9 @@ app.post('/api/packs/open', async (req, res) => {
       return res.json(entry.response);
     }
 
-    // Validate pack
     const pack = db.packs.find(p => p.id === packId);
     if (!pack) return res.status(400).json({ error:'Unknown packId' });
 
-    // Load inventory + funds
     let inv;
     if (isUUID(req.playerId)) {
       inv = await dbGetInventory(req.playerId);
@@ -293,7 +343,6 @@ app.post('/api/packs/open', async (req, res) => {
       saveInventory(req.playerId, inv);
     }
 
-    // Generate 5 pulls (avoid repeats within this opening; dupe flag vs user's current inv)
     const table   = db.dropTables.find(t => t.id === pack.tableId);
     const pullsN  = 5;
     const results = [];
@@ -327,15 +376,12 @@ app.post('/api/packs/open', async (req, res) => {
       pack: { id: pack.id, name: pack.name, price: pack.price },
       results,
       economy: {
-        balance: {
-          COIN: (inv?.balance?.COIN || 0) - pack.price.amount
-        },
+        balance: { COIN: (inv?.balance?.COIN || 0) - pack.price.amount },
         dupeCredit: { COIN: 0 }
       },
       pity: { legendarySince: state.pity.legendarySince }
     };
 
-    // Store "pending open"
     if (isUUID(req.playerId)) {
       await dbSetPendingOpen(req.playerId, {
         packId,
@@ -344,7 +390,6 @@ app.post('/api/packs/open', async (req, res) => {
         results
       });
     } else {
-      // anon/in-memory
       if (!state.pendingOpens.has(req.playerId)) {
         state.pendingOpens.set(req.playerId, {
           packId, idempotencyKey: key, openedAt: Date.now(), results
@@ -352,9 +397,7 @@ app.post('/api/packs/open', async (req, res) => {
       }
     }
 
-    // Idempotency cache
     state.idempo.set(key, { requestHash, response });
-
     return res.json(response);
   } catch (e) {
     return res.status(500).json({ error: String(e.message || e) });
@@ -414,7 +457,6 @@ app.post('/api/collection/add', async (req, res) => {
 });
 
 /* -------------------- DEV endpoints ---------------------------------- */
-// Grant coins to current user
 app.post('/api/dev/grant', async (req, res) => {
   try {
     const amount = Number(req.body?.amount ?? 1000);
@@ -434,16 +476,14 @@ app.post('/api/dev/grant', async (req, res) => {
   }
 });
 
-// Reset THIS player's data (balance, items, pending)
 app.post('/api/dev/reset', async (req, res) => {
   const playerId = req.playerId || 'anon';
   try {
     if (isUUID(playerId)) {
-      // reset coin + clear items + pending
+      const sb = requireAdmin();
       await dbEnsureProfile(playerId);
-      // set coin_balance = 1000
-      await supaAdmin.from('profiles').update({ coin_balance: 1000 }).eq('id', playerId);
-      await supaAdmin.from('inventory_items').delete().eq('owner_id', playerId);
+      await sb.from('profiles').update({ coin_balance: 1000 }).eq('id', playerId);
+      await sb.from('inventory_items').delete().eq('owner_id', playerId);
       await dbClearPendingOpen(playerId);
       const inv = await dbGetInventory(playerId);
       return res.json({ ok: true, playerId, inventory: inv });
