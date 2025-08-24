@@ -141,7 +141,7 @@ async function dbEnsureProfile(userId) {
   const sb = requireAdmin();
   const { error: upErr } = await sb
     .from('profiles')
-    .upsert({ id: user_id: userId }, { onConflict: 'id', ignoreDuplicates: true });
+    .upsert({ id: user_id: userId }, { onConflict: 'user_id', ignoreDuplicates: true });
   if (upErr) throw upErr;
 }
 
@@ -251,7 +251,7 @@ app.get('/api/debug/db-deep', async (_req, res) => {
     const testUser = '00000000-0000-0000-0000-000000000000'; // dummy UUID
     const up1 = await supaAdmin
       .from('profiles')
-      .upsert({ user_id:: testUser }, { onConflict: 'id', ignoreDuplicates: true });
+      .upsert({ user_id: testUser }, { onConflict: 'user_id', ignoreDuplicates: true });
 
     // If profiles is missing, this returns an error with code 42P01 (undefined_table)
     if (up1.error) {
