@@ -7,7 +7,22 @@ import { fileURLToPath } from 'url';
 
 import 'dotenv/config';
 import { jwtVerify } from 'jose';
+import { createClient } from '@supabase/supabase-js';
 
+/* -------------------- Supabase Admin (server-side) -------------------- */
+const SUPABASE_URL       = process.env.SUPABASE_URL;
+const SUPA_SERVICE_ROLE  = process.env.SUPABASE_SERVICE_ROLE; // NEVER expose to client
+const SUPABASE_JWT_SECRET = (process.env.SUPABASE_JWT_SECRET || '').trim();
+
+if (!SUPABASE_URL || !SUPA_SERVICE_ROLE) {
+  console.warn('[supabase] Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE env vars!');
+}
+
+const supaAdmin = createClient(SUPABASE_URL, SUPA_SERVICE_ROLE, {
+  auth: { persistSession: false, autoRefreshToken: false }
+});
+
+/* -------------------- Node/Express bootstrap ------------------------- */
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
 
@@ -15,32 +30,26 @@ const app  = express();
 const PORT = process.env.PORT || 5179;
 
 app.use(express.json());
-
-// CORS: allow your widget origin(s) + auth headers
 app.use(cors({
-  origin: true, // echoes the request Origin
+  origin: true, // echo request origin
   credentials: false,
   allowedHeaders: ['Content-Type', 'X-Player-Id', 'Authorization'],
   methods: ['GET', 'POST', 'OPTIONS']
 }));
 
-/**
- * AUTH
- * - If a Supabase JWT is present (Authorization: Bearer ...), trust it and use its `sub` as playerId.
- * - Otherwise, fall back to your existing X-Player-Id (anon testing).
- */
-const JWT_SECRET = (process.env.SUPABASE_JWT_SECRET || '').trim();
-const JWT_KEY = JWT_SECRET ? new TextEncoder().encode(JWT_SECRET) : null;
+/* -------------------- Auth middleware --------------------------------
+   - If Authorization: Bearer <supabase_jwt> is present and valid,
+     use Supabase user id (payload.sub) for per-user DB storage.
+   - Else fall back to X-Player-Id / 'anon' => uses local JSON storage.
+----------------------------------------------------------------------- */
+const JWT_KEY = SUPABASE_JWT_SECRET ? new TextEncoder().encode(SUPABASE_JWT_SECRET) : null;
 
 async function authMiddleware(req, _res, next) {
-  // start with your existing fallback (keeps current anon testing intact)
   req.user = null;
   req.playerId = req.get('X-Player-Id') || 'anon';
 
   const auth = req.get('authorization') || req.get('Authorization');
-  if (!auth?.startsWith('Bearer ') || !JWT_KEY) {
-    return next(); // no token or no server secret configured → keep fallback
-  }
+  if (!auth?.startsWith('Bearer ') || !JWT_KEY) return next();
 
   const token = auth.slice(7).trim();
   if (!token) return next();
@@ -53,27 +62,26 @@ async function authMiddleware(req, _res, next) {
       req.playerId = sub; // Supabase user id
     }
   } catch {
-    // invalid token → remain in fallback mode
+    // invalid token → keep fallback id
   }
   next();
 }
-
 app.use(authMiddleware);
 
-// -------- Data + state --------------------------------------------------
+/* -------------------- In-memory global state ------------------------- */
 const DB_PATH = path.join(__dirname, 'data', 'drop-tables.json');
 const db = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
 
-// Global state (pity + idempotency global is fine for now)
 const state = {
-  balance: { COIN: 9000 },   // legacy (unused for per-user, still fine to keep)
-  inventory: [],             // legacy (unused for per-user)
+  balance: { COIN: 9000 },   // legacy (unused in DB mode)
+  inventory: [],             // legacy (unused in DB mode)
   pity: { legendarySince: 0 },
-  idempo: new Map(),
-  pendingOpens: new Map()    // playerId -> { results:[...], packId, idempotencyKey, openedAt }
+  idempo: new Map(),         // idempotency remains in-memory
+  // NOTE: for anon mode we still use in-memory pending to preserve your testing flow
+  pendingOpens: new Map()    // playerId -> { results, packId, idempotencyKey, openedAt }
 };
 
-// Per-user storage on disk (simple JSON files)
+/* -------------------- Local JSON storage (anon fallback) ------------- */
 const USERS_DIR = path.join(__dirname, 'data', 'users');
 if (!fs.existsSync(USERS_DIR)) fs.mkdirSync(USERS_DIR, { recursive: true });
 
@@ -83,7 +91,7 @@ function userFile(playerId) {
 function loadInventory(playerId) {
   const f = userFile(playerId);
   if (!fs.existsSync(f)) {
-    const fresh = { balance: { COIN: 1000 }, items: [] }; // seed for testing
+    const fresh = { balance: { COIN: 1000 }, items: [] };
     fs.writeFileSync(f, JSON.stringify(fresh, null, 2));
     return fresh;
   }
@@ -93,7 +101,10 @@ function saveInventory(playerId, inv) {
   fs.writeFileSync(userFile(playerId), JSON.stringify(inv, null, 2));
 }
 
-// -------- Helpers -------------------------------------------------------
+/* -------------------- Utilities ------------------------------------- */
+function isUUID(v) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(v || ''));
+}
 function hashRequest(body){ return JSON.stringify(body); }
 
 function pickRarity(table){
@@ -116,175 +127,336 @@ function pickRarity(table){
   return table.rows[0].rarity;
 }
 
-// -------- Routes --------------------------------------------------------
+/* -------------------- DB helpers (Supabase) -------------------------- */
+// Ensure a profiles row exists for this user (with default coin_balance)
+async function dbEnsureProfile(userId) {
+  // upsert to create if missing
+  const { error: upErr } = await supaAdmin
+    .from('profiles')
+    .upsert({ id: userId }, { onConflict: 'id', ignoreDuplicates: true });
+  if (upErr) throw upErr;
+}
 
-// Who am I? (debug)
+async function dbGetInventory(userId) {
+  await dbEnsureProfile(userId);
+
+  const [{ data: prof, error: profErr }, { data: items, error: itemsErr }] = await Promise.all([
+    supaAdmin.from('profiles')
+      .select('coin_balance')
+      .eq('id', userId)
+      .maybeSingle(),
+    supaAdmin.from('inventory_items')
+      .select('item_id, name, rarity, art_url, created_at')
+      .eq('owner_id', userId)
+      .order('created_at', { ascending: true })
+  ]);
+
+  if (profErr)  throw profErr;
+  if (itemsErr) throw itemsErr;
+
+  return {
+    balance: { COIN: prof?.coin_balance ?? 0 },
+    items: (items || []).map(it => ({
+      itemId: it.item_id,
+      name:   it.name,
+      rarity: it.rarity,
+      artUrl: it.art_url
+    }))
+  };
+}
+
+async function dbIncBalance(userId, delta) {
+  // Prefer RPC if you created it; otherwise fallback to update+select
+  const { data, error } = await supaAdmin.rpc('inc_balance', { p_user: userId, p_delta: delta });
+  if (!error) return data;
+  // Fallback (non-atomic across replicas, but fine here)
+  const { data: prof, error: selErr } = await supaAdmin
+    .from('profiles').select('coin_balance').eq('id', userId).maybeSingle();
+  if (selErr) throw selErr;
+  const next = (prof?.coin_balance ?? 0) + delta;
+  const { error: updErr } = await supaAdmin
+    .from('profiles').update({ coin_balance: next }).eq('id', userId);
+  if (updErr) throw updErr;
+  return next;
+}
+async function dbDebitBalance(userId, amount) {
+  if (amount <= 0) return;
+  return dbIncBalance(userId, -amount);
+}
+
+async function dbAddInventoryItems(userId, items /* {itemId,name,rarity,artUrl}[] */) {
+  if (!items?.length) return;
+  const rows = items.map(it => ({
+    owner_id: userId,
+    item_id:  it.itemId,
+    name:     it.name,
+    rarity:   it.rarity,
+    art_url:  it.artUrl ?? null
+  }));
+  const { error } = await supaAdmin.from('inventory_items').insert(rows);
+  if (error) throw error;
+}
+
+// Pending opens stored per user (one active at a time)
+async function dbSetPendingOpen(userId, payload /* {packId,idempotencyKey,openedAt,results[]} */) {
+  const { error } = await supaAdmin
+    .from('pending_opens')
+    .upsert({ owner_id: userId, data: payload }, { onConflict: 'owner_id' });
+  if (error) throw error;
+}
+async function dbGetPendingOpen(userId) {
+  const { data, error } = await supaAdmin
+    .from('pending_opens')
+    .select('data')
+    .eq('owner_id', userId)
+    .maybeSingle();
+  if (error) throw error;
+  return data?.data || null;
+}
+async function dbClearPendingOpen(userId) {
+  const { error } = await supaAdmin
+    .from('pending_opens')
+    .delete()
+    .eq('owner_id', userId);
+  if (error) throw error;
+}
+
+/* -------------------- Debug: whoami ---------------------------------- */
 app.get('/api/debug/whoami', (req, res) => {
   res.json({
-    playerId: req.playerId,            // what the server will use for storage
-    authed: !!req.user,                // true if a Supabase JWT was verified
-    userSub: req.user?.sub || null,    // Supabase user id if authed
-    // show which id headers arrived (for sanity):
+    playerId: req.playerId,
+    authed: !!req.user,
+    userSub: req.user?.sub || null,
     sawAuthorization: !!req.get('authorization'),
     sawXPlayerId: !!req.get('x-player-id'),
   });
 });
 
+/* -------------------- Routes ---------------------------------------- */
 // Packs list (public)
 app.get('/api/packs', (_req, res) => {
   res.json({ packs: db.packs });
 });
 
-// Inventory (per-user; works for signed-in or anon header)
-app.get('/api/inventory', (req, res) => {
-  const inv = loadInventory(req.playerId);
-  res.json({ balance: inv.balance, items: inv.items });
+// Inventory (per-user; Supabase for authed UUID; JSON for anon)
+app.get('/api/inventory', async (req, res) => {
+  try {
+    if (isUUID(req.playerId)) {
+      const inv = await dbGetInventory(req.playerId);
+      return res.json(inv);
+    } else {
+      const inv = loadInventory(req.playerId);
+      return res.json(inv);
+    }
+  } catch (e) {
+    return res.status(500).json({ error: String(e.message || e) });
+  }
 });
 
-// OPEN PACK (charges user balance, returns 5 results, stashes "pending")
-app.post('/api/packs/open', (req, res)=>{
-  const { packId, idempotencyKey } = req.body || {};
-  if (!packId || !idempotencyKey) {
-    return res.status(400).json({ error:'packId and idempotencyKey are required' });
-  }
-
-  // Idempotency
-  const key = String(idempotencyKey);
-  const requestHash = hashRequest({ packId });
-  if (state.idempo.has(key)) {
-    const entry = state.idempo.get(key);
-    if (entry.requestHash !== requestHash) {
-      return res.status(409).json({ error:'idempotency key reused with different request' });
+// OPEN PACK (charges once, returns 5 results, stores "pending")
+app.post('/api/packs/open', async (req, res) => {
+  try {
+    const { packId, idempotencyKey } = req.body || {};
+    if (!packId || !idempotencyKey) {
+      return res.status(400).json({ error:'packId and idempotencyKey are required' });
     }
-    return res.json(entry.response);
-  }
 
-  // Intercept final JSON to stash "pending open" for this player (don’t overwrite active pending)
-  const originalJson = res.json.bind(res);
-  res.json = (body) => {
-    try {
-      const results = body && body.results;
-      if (Array.isArray(results) && results.length) {
-        if (!state.pendingOpens.has(req.playerId)) {
-          state.pendingOpens.set(req.playerId, {
-            packId,
-            idempotencyKey: key,
-            openedAt: Date.now(),
-            results
-          });
-        }
+    // Idempotency (in-memory, unchanged)
+    const key = String(idempotencyKey);
+    const requestHash = hashRequest({ packId });
+    if (state.idempo.has(key)) {
+      const entry = state.idempo.get(key);
+      if (entry.requestHash !== requestHash) {
+        return res.status(409).json({ error:'idempotency key reused with different request' });
       }
-    } catch {}
-    return originalJson(body);
-  };
+      return res.json(entry.response);
+    }
 
-  // Validate pack & funds (per-user)
-  const pack = db.packs.find(p=>p.id===packId);
-  if (!pack) return res.status(400).json({ error:'Unknown packId' });
+    // Validate pack
+    const pack = db.packs.find(p => p.id === packId);
+    if (!pack) return res.status(400).json({ error:'Unknown packId' });
 
-  const inv = loadInventory(req.playerId);
-  if ((inv.balance.COIN || 0) < pack.price.amount) {
-    return res.status(402).json({ error:'Insufficient funds' });
+    // Load inventory + funds
+    let inv;
+    if (isUUID(req.playerId)) {
+      inv = await dbGetInventory(req.playerId);
+      if ((inv?.balance?.COIN || 0) < pack.price.amount) {
+        return res.status(402).json({ error:'Insufficient funds' });
+      }
+      await dbDebitBalance(req.playerId, pack.price.amount);
+    } else {
+      inv = loadInventory(req.playerId);
+      if ((inv.balance.COIN || 0) < pack.price.amount) {
+        return res.status(402).json({ error:'Insufficient funds' });
+      }
+      inv.balance.COIN -= pack.price.amount;
+      saveInventory(req.playerId, inv);
+    }
+
+    // Generate 5 pulls (avoid repeats within this opening; dupe flag vs user's current inv)
+    const table   = db.dropTables.find(t => t.id === pack.tableId);
+    const pullsN  = 5;
+    const results = [];
+    const openingSeenIds = new Set();
+
+    function pickItemForRarity(rarity){
+      const pool  = db.items.filter(i => i.rarity === rarity);
+      const fresh = pool.filter(i => !openingSeenIds.has(i.id));
+      const list  = fresh.length ? fresh : pool;
+      const picked = list[Math.floor(Math.random() * list.length)];
+      openingSeenIds.add(picked.id);
+      return picked;
+    }
+
+    for (let i = 0; i < pullsN; i++){
+      const rarity = pickRarity(table);
+      const item   = pickItemForRarity(rarity);
+      const isDupe = (inv.items || []).some(x => x.itemId === item.id);
+      results.push({
+        itemId: item.id,
+        name:   item.name,
+        rarity: item.rarity,
+        artUrl: item.artUrl,
+        isDupe
+      });
+    }
+
+    const openingId = 'op_' + nanoid(6);
+    const response = {
+      openingId,
+      pack: { id: pack.id, name: pack.name, price: pack.price },
+      results,
+      economy: {
+        balance: {
+          COIN: (inv?.balance?.COIN || 0) - pack.price.amount
+        },
+        dupeCredit: { COIN: 0 }
+      },
+      pity: { legendarySince: state.pity.legendarySince }
+    };
+
+    // Store "pending open"
+    if (isUUID(req.playerId)) {
+      await dbSetPendingOpen(req.playerId, {
+        packId,
+        idempotencyKey: key,
+        openedAt: Date.now(),
+        results
+      });
+    } else {
+      // anon/in-memory
+      if (!state.pendingOpens.has(req.playerId)) {
+        state.pendingOpens.set(req.playerId, {
+          packId, idempotencyKey: key, openedAt: Date.now(), results
+        });
+      }
+    }
+
+    // Idempotency cache
+    state.idempo.set(key, { requestHash, response });
+
+    return res.json(response);
+  } catch (e) {
+    return res.status(500).json({ error: String(e.message || e) });
   }
-
-  // Charge once per pack
-  inv.balance.COIN -= pack.price.amount;
-  saveInventory(req.playerId, inv);
-
-  // Generate 5 pulls (avoid repeats within this opening; dupe flag against user inv)
-  const table  = db.dropTables.find(t=>t.id===pack.tableId);
-  const pullsN = 5;
-  const results = [];
-
-  const openingSeenIds = new Set();
-  function pickItemForRarity(rarity){
-    const pool = db.items.filter(i=>i.rarity === rarity);
-    const fresh = pool.filter(i=>!openingSeenIds.has(i.id));
-    const list  = fresh.length ? fresh : pool;
-    const picked = list[Math.floor(Math.random()*list.length)];
-    openingSeenIds.add(picked.id);
-    return picked;
-  }
-
-  for (let i=0; i<pullsN; i++){
-    const rarity = pickRarity(table);
-    const item   = pickItemForRarity(rarity);
-    const isDupe = inv.items.some(x=>x.itemId === item.id);
-    results.push({
-      itemId: item.id,
-      name:   item.name,
-      rarity: item.rarity,
-      artUrl: item.artUrl,
-      isDupe
-    });
-  }
-
-  const openingId = 'op_' + nanoid(6);
-  const response = {
-    openingId,
-    pack: { id: pack.id, name: pack.name, price: pack.price },
-    results,
-    economy: {
-      balance: inv.balance,
-      dupeCredit: { COIN: 0 }
-    },
-    pity: { legendarySince: state.pity.legendarySince }
-  };
-
-  state.idempo.set(key, { requestHash, response });
-  res.json(response);
 });
 
 // ADD TO COLLECTION (consume pending → inventory)
-app.post('/api/collection/add', (req, res) => {
-  const { itemIds = [] } = req.body || {};
-  const pending = state.pendingOpens.get(req.playerId);
-  if (!pending?.results?.length) {
-    return res.status(400).json({ error: 'No pending items to collect.' });
-  }
+app.post('/api/collection/add', async (req, res) => {
+  try {
+    const { itemIds = [] } = req.body || {};
+    if (!Array.isArray(itemIds) || itemIds.length === 0) {
+      return res.status(400).json({ error: 'No itemIds provided.' });
+    }
 
-  const allowed = new Set(pending.results.map(it => it.itemId));
-  const toAddIds = itemIds.filter(id => allowed.has(id));
-  if (!toAddIds.length) {
-    return res.status(400).json({ error: 'No matching pending items.' });
-  }
+    let pending;
+    if (isUUID(req.playerId)) {
+      pending = await dbGetPendingOpen(req.playerId);
+    } else {
+      pending = state.pendingOpens.get(req.playerId);
+    }
+    if (!pending?.results?.length) {
+      return res.status(400).json({ error: 'No pending items to collect.' });
+    }
 
-  const inv = loadInventory(req.playerId);
-  const byId = new Map(pending.results.map(it => [it.itemId, it]));
+    const allowed  = new Set(pending.results.map(it => it.itemId));
+    const toAddIds = itemIds.filter(id => allowed.has(id));
+    if (!toAddIds.length) {
+      return res.status(400).json({ error: 'No matching pending items.' });
+    }
 
-  toAddIds.forEach(id => {
-    const it = byId.get(id);
-    if (it) {
-      inv.items.push({
+    const mapById = new Map(pending.results.map(it => [it.itemId, it]));
+    const itemsToAdd = toAddIds
+      .map(id => mapById.get(id))
+      .filter(Boolean)
+      .map(it => ({
         itemId: it.itemId,
         name:   it.name,
         rarity: it.rarity,
         artUrl: it.artUrl
-      });
+      }));
+
+    if (isUUID(req.playerId)) {
+      await dbAddInventoryItems(req.playerId, itemsToAdd);
+      await dbClearPendingOpen(req.playerId);
+      const inv = await dbGetInventory(req.playerId);
+      return res.json({ ok: true, inventory: inv });
+    } else {
+      const inv = loadInventory(req.playerId);
+      inv.items.push(...itemsToAdd);
+      state.pendingOpens.delete(req.playerId);
+      saveInventory(req.playerId, inv);
+      return res.json({ ok: true, inventory: inv });
     }
-  });
-
-  state.pendingOpens.delete(req.playerId);
-  saveInventory(req.playerId, inv);
-  res.json({ ok: true, inventory: inv });
+  } catch (e) {
+    return res.status(500).json({ error: String(e.message || e) });
+  }
 });
 
-// --- DEV endpoints (per-user) ------------------------------------------
-app.post('/api/dev/grant', (req, res) => {
-  const amount = Number(req.body?.amount ?? 1000);
-  const inv = loadInventory(req.playerId);
-  inv.balance.COIN += isNaN(amount) ? 0 : amount;
-  saveInventory(req.playerId, inv);
-  res.json({ balance: inv.balance });
+/* -------------------- DEV endpoints ---------------------------------- */
+// Grant coins to current user
+app.post('/api/dev/grant', async (req, res) => {
+  try {
+    const amount = Number(req.body?.amount ?? 1000);
+    if (isNaN(amount)) return res.status(400).json({ error:'amount must be a number' });
+
+    if (isUUID(req.playerId)) {
+      const newBal = await dbIncBalance(req.playerId, amount);
+      return res.json({ balance: { COIN: newBal } });
+    } else {
+      const inv = loadInventory(req.playerId);
+      inv.balance.COIN += amount;
+      saveInventory(req.playerId, inv);
+      return res.json({ balance: inv.balance });
+    }
+  } catch (e) {
+    return res.status(500).json({ error: String(e.message || e) });
+  }
 });
 
-app.post('/api/dev/reset', (req, res) => {
+// Reset THIS player's data (balance, items, pending)
+app.post('/api/dev/reset', async (req, res) => {
   const playerId = req.playerId || 'anon';
-  const fresh = { balance: { COIN: 1000 }, items: [] };
-  saveInventory(playerId, fresh);
-  state.pendingOpens.delete(playerId);
-  res.json({ ok: true, playerId, inventory: fresh });
+  try {
+    if (isUUID(playerId)) {
+      // reset coin + clear items + pending
+      await dbEnsureProfile(playerId);
+      // set coin_balance = 1000
+      await supaAdmin.from('profiles').update({ coin_balance: 1000 }).eq('id', playerId);
+      await supaAdmin.from('inventory_items').delete().eq('owner_id', playerId);
+      await dbClearPendingOpen(playerId);
+      const inv = await dbGetInventory(playerId);
+      return res.json({ ok: true, playerId, inventory: inv });
+    } else {
+      const fresh = { balance: { COIN: 1000 }, items: [] };
+      saveInventory(playerId, fresh);
+      state.pendingOpens.delete(playerId);
+      return res.json({ ok: true, playerId, inventory: fresh });
+    }
+  } catch (e) {
+    return res.status(500).json({ error: String(e.message || e) });
+  }
 });
 
-// -----------------------------------------------------------------------
+/* -------------------- Start ------------------------------------------ */
 app.listen(PORT, ()=> console.log('Mock backend http://localhost:'+PORT));
