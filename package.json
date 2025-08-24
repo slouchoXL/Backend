@@ -2,15 +2,17 @@
   "name": "packs-mock-backend",
   "private": true,
   "type": "module",
-  "version": "0.1.0",
+  "engines": { "node": ">=18" },
   "scripts": {
-    "dev": "node server.js"
+    "start": "node server.js"
   },
   "dependencies": {
+    "express": "^4.19.2",
     "cors": "^2.8.5",
-    "dotenv": "^17.2.1",
-    "express": "^4.21.2",
-    "jose": "^6.0.13",
-    "nanoid": "^5.1.5"
+    "nanoid": "^4.0.2",
+    "pg": "^8.11.3",
+    "dotenv": "^16.4.5",
+    "jose": "^5.2.4",
+    "@supabase/supabase-js": "^2.47.0"
   }
 }
