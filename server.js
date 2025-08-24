@@ -141,7 +141,7 @@ async function dbEnsureProfile(userId) {
   const sb = requireAdmin();
   const { error: upErr } = await sb
     .from('profiles')
-    .upsert({ id: userId }, { onConflict: 'id', ignoreDuplicates: true });
+    .upsert({ id: user_id: userId }, { onConflict: 'id', ignoreDuplicates: true });
   if (upErr) throw upErr;
 }
 
@@ -152,7 +152,7 @@ async function dbGetInventory(userId) {
   const [{ data: prof, error: profErr }, { data: items, error: itemsErr }] = await Promise.all([
     sb.from('profiles')
       .select('coin_balance')
-      .eq('id', userId)
+      .eq('user_id:', userId)
       .maybeSingle(),
     sb.from('inventory_items')
       .select('item_id, name, rarity, art_url, created_at')
@@ -182,11 +182,11 @@ async function dbIncBalance(userId, delta) {
 
   // Fallback
   const { data: prof, error: selErr } = await sb
-    .from('profiles').select('coin_balance').eq('id', userId).maybeSingle();
+    .from('profiles').select('coin_balance').eq('user_id', userId).maybeSingle();
   if (selErr) throw selErr;
   const next = (prof?.coin_balance ?? 0) + delta;
   const { error: updErr } = await sb
-    .from('profiles').update({ coin_balance: next }).eq('id', userId);
+    .from('profiles').update({ coin_balance: next }).eq('user_id', userId);
   if (updErr) throw updErr;
   return next;
 }
@@ -251,7 +251,7 @@ app.get('/api/debug/db-deep', async (_req, res) => {
     const testUser = '00000000-0000-0000-0000-000000000000'; // dummy UUID
     const up1 = await supaAdmin
       .from('profiles')
-      .upsert({ id: testUser }, { onConflict: 'id', ignoreDuplicates: true });
+      .upsert({ user_id:: testUser }, { onConflict: 'id', ignoreDuplicates: true });
 
     // If profiles is missing, this returns an error with code 42P01 (undefined_table)
     if (up1.error) {
@@ -546,7 +546,7 @@ app.post('/api/dev/reset', async (req, res) => {
     if (isUUID(playerId)) {
       const sb = requireAdmin();
       await dbEnsureProfile(playerId);
-      await sb.from('profiles').update({ coin_balance: 1000 }).eq('id', playerId);
+      await sb.from('profiles').update({ coin_balance: 1000 }).eq('user_id', playerId);
       await sb.from('inventory_items').delete().eq('owner_id', playerId);
       await dbClearPendingOpen(playerId);
       const inv = await dbGetInventory(playerId);
