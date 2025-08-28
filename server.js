@@ -218,7 +218,7 @@ async function dbGetInventory(userId) {
 }
 
 function computeProgress(inv, canon) {
-  const owned = new Set(inv.items.map(it => it.itemId));
+  const owned = new Set((inv.items || []).map(it => it.itemId));
 
   const songs = [];
   const eps = [];
@@ -226,44 +226,98 @@ function computeProgress(inv, canon) {
   const fragments = [];
   const characters = [];
 
-  // --- EPs ---
-  for (const ep of canon.eps.eps || []) {
+  const epsList = (canon?.eps?.eps) || [];
+  for (const ep of epsList) {
+    const songList = (ep?.songs) || [];
     let songsComplete = 0;
-    for (const song of ep.songs) {
-      const ownedStems = song.stems.filter(s => owned.has(s.id)).length;
-      const totalStems = song.stems.length;
-      const complete = ownedStems === totalStems;
+
+    for (const song of songList) {
+      const stems = (song?.stems) || [];
+      const ownedStems = stems.filter(s => owned.has(s.id)).length;
+      const totalStems = stems.length;
+      const complete = totalStems > 0 && ownedStems === totalStems;
       if (complete) songsComplete++;
-      songs.push({ id: song.id, name: song.name, ownedStems, totalStems, complete, epId: ep.id });
+      songs.push({
+        id: song?.id || null,
+        name: song?.name || null,
+        ownedStems,
+        totalStems,
+        complete,
+        epId: ep?.id || null
+      });
     }
-    const coverOwned = ep.cover && owned.has(ep.cover.id);
-    const epComplete = songsComplete === ep.songs.length && coverOwned;
-    eps.push({ id: ep.id, name: ep.name, songsComplete, totalSongs: ep.songs.length, coverOwned, complete: epComplete });
-    if (epComplete && ep.character) {
-      characters.push({ id: ep.character.id, name: ep.character.name, unlocked: true, source: ep.id });
+
+    const coverOwned = !!(ep?.cover?.id && owned.has(ep.cover.id));
+    const epComplete = songList.length > 0 && songsComplete === songList.length && coverOwned;
+    eps.push({
+      id: ep?.id || null,
+      name: ep?.name || null,
+      songsComplete,
+      totalSongs: songList.length,
+      coverOwned,
+      complete: epComplete
+    });
+
+    if (epComplete && ep?.character?.id) {
+      characters.push({
+        id: ep.character.id,
+        name: ep.character.name || ep.character.id,
+        unlocked: true,
+        source: ep.id
+      });
     }
   }
 
-  // --- Singles ---
-  for (const s of canon.eps.singles || []) {
-    const ownedStems = s.stems.filter(st => owned.has(st.id)).length;
-    const totalStems = s.stems.length;
-    const coverOwned = s.cover && owned.has(s.cover.id);
-    const complete = ownedStems === totalStems && coverOwned;
-    singles.push({ id: s.id, name: s.name, ownedStems, totalStems, coverOwned, complete });
-    if (complete && s.character) {
-      characters.push({ id: s.character.id, name: s.character.name, unlocked: true, source: s.id });
+  // Singles can be either { id, name, stems, cover, character } OR { id, name, song:{stems}, cover, character }
+  const singlesList = (canon?.eps?.singles) || [];
+  for (const s of singlesList) {
+    const stemArray = (s?.stems) || (s?.song?.stems) || [];
+    const ownedStems = stemArray.filter(st => owned.has(st.id)).length;
+    const totalStems = stemArray.length;
+    const coverOwned = !!(s?.cover?.id && owned.has(s.cover.id));
+    const complete = totalStems > 0 && ownedStems === totalStems && coverOwned;
+
+    singles.push({
+      id: s?.id || null,
+      name: s?.name || null,
+      ownedStems,
+      totalStems,
+      coverOwned,
+      complete
+    });
+
+    if (complete && s?.character?.id) {
+      characters.push({
+        id: s.character.id,
+        name: s.character.name || s.character.id,
+        unlocked: true,
+        source: s.id
+      });
     }
   }
 
-  // --- Fragments ---
-  for (const char of canon.fragments.characters || []) {
-    const ownedCount = char.fragments.filter(f => owned.has(f.id)).length;
-    const total = char.fragments.length;
-    const complete = ownedCount === total;
-    fragments.push({ characterId: char.id, name: char.name, owned: ownedCount, total, complete });
-    if (complete) {
-      characters.push({ id: char.id, name: char.name, unlocked: true, source: 'fragments' });
+  const fragChars = (canon?.fragments?.characters) || [];
+  for (const char of fragChars) {
+    const frags = (char?.fragments) || [];
+    const ownedCount = frags.filter(f => owned.has(f.id)).length;
+    const total = frags.length;
+    const complete = total > 0 && ownedCount === total;
+
+    fragments.push({
+      characterId: char?.id || null,
+      name: char?.name || null,
+      owned: ownedCount,
+      total,
+      complete
+    });
+
+    if (complete && char?.id) {
+      characters.push({
+        id: char.id,
+        name: char.name || char.id,
+        unlocked: true,
+        source: 'fragments'
+      });
     }
   }
 
