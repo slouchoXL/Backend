@@ -270,6 +270,61 @@ function computeProgress(inv, canon) {
   return { songs, eps, singles, fragments, characters };
 }
 
+async function materializeUnlocks(userId, inv, canon) {
+  const sb = requireAdmin();
+  // current unlocked set
+  const { data: existing, error: exErr } = await sb
+    .from('unlocked_characters')
+    .select('char_id')
+    .eq('owner_id', userId);
+  if (exErr) throw exErr;
+  const have = new Set((existing || []).map(r => r.char_id));
+
+  // recompute
+  const prog = computeProgress(inv, canon);
+
+  // candidates: EP/SINGLE completions
+  const newly = [];
+
+  for (const ep of prog.eps) {
+    if (ep.complete) {
+      const epDef = (canon.eps.eps || []).find(e => e.id === ep.id);
+      if (epDef?.character && !have.has(epDef.character.id)) {
+        newly.push({ char_id: epDef.character.id, source: `EP:${ep.id}` });
+      }
+    }
+  }
+
+  for (const s of prog.singles) {
+    if (s.complete) {
+      const sDef = (canon.eps.singles || []).find(x => x.id === s.id);
+      if (sDef?.character && !have.has(sDef.character.id)) {
+        newly.push({ char_id: sDef.character.id, source: `SINGLE:${s.id}` });
+      }
+    }
+  }
+
+  // fragment-based
+  for (const f of prog.fragments) {
+    if (f.complete && !have.has(f.characterId)) {
+      newly.push({ char_id: f.characterId, source: `FRAGMENTS:${f.characterId}` });
+    }
+  }
+
+  if (!newly.length) return { inserted: 0 };
+
+  const rows = newly.map(n => ({
+    owner_id: userId,
+    char_id: n.char_id,
+    source: n.source
+  }));
+  const { error: insErr } = await sb
+    .from('unlocked_characters')
+    .upsert(rows, { onConflict: 'owner_id,char_id' });
+  if (insErr) throw insErr;
+  return { inserted: rows.length };
+}
+
 
 async function dbIncBalance(userId, delta) {
   const sb = requireAdmin();
@@ -711,6 +766,10 @@ app.post('/api/collection/add', async (req, res) => {
         });
         if (error) throw error;
       await dbClearPendingOpen(req.playerId);
+        
+        let inv = await dbGetInventory(req.playerId);
+        await materializeUnlocks(req.playerId, inv, canon);
+        inv = await dbGetInventory(req.playerId);
 
       // Return updated inventory
       const inv = await dbGetInventory(req.playerId);
