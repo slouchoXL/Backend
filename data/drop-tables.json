@@ -29,7 +29,7 @@
       "id": "starter",
       "name": "Starter Pack",
       "price": {
-          "amount": 100,
+        "amount": 100,
         "currency": "Credits"
       },
       "tableId": "base-1"
@@ -37,28 +37,1152 @@
   ],
   "items": [
     {
-      "id": "itm_001",
-      "name": "Neon Feather",
+      "id": "stem_song_just-u_drums",
+      "name": "Just U — Drums",
       "rarity": "common",
-      "artUrl": "/mock/art/feather.png"
+      "kind": "stem",
+      "artUrl": null
     },
     {
-      "id": "itm_002",
-      "name": "Holo Pick",
+      "id": "stem_song_just-u_bass",
+      "name": "Just U — Bass",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_just-u_music",
+      "name": "Just U — Music",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_just-u_vocals",
+      "name": "Just U — Vocals",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_just-u_fx",
+      "name": "Just U — FX",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_always-remember_drums",
+      "name": "Always Remember — Drums",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_always-remember_bass",
+      "name": "Always Remember — Bass",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_always-remember_music",
+      "name": "Always Remember — Music",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_always-remember_vocals",
+      "name": "Always Remember — Vocals",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_always-remember_fx",
+      "name": "Always Remember — FX",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_i-found-u_drums",
+      "name": "I found U — Drums",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_i-found-u_bass",
+      "name": "I found U — Bass",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_i-found-u_music",
+      "name": "I found U — Music",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_i-found-u_vocals",
+      "name": "I found U — Vocals",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_i-found-u_fx",
+      "name": "I found U — FX",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_the-end_drums",
+      "name": "The End — Drums",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_the-end_bass",
+      "name": "The End — Bass",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_the-end_music",
+      "name": "The End — Music",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_the-end_vocals",
+      "name": "The End — Vocals",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_the-end_fx",
+      "name": "The End — FX",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "cover_ep_echoes",
+      "name": "ECHOES — Cover",
       "rarity": "rare",
-      "artUrl": "/mock/art/pick.png"
+      "kind": "cover",
+      "artUrl": "/art/cover_ep_echoes.png"
     },
     {
-      "id": "itm_003",
-      "name": "Retro Disc",
+      "id": "stem_song_bronze-age_drums",
+      "name": "Bronze Age — Drums",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_bronze-age_bass",
+      "name": "Bronze Age — Bass",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_bronze-age_music",
+      "name": "Bronze Age — Music",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_bronze-age_vocals",
+      "name": "Bronze Age — Vocals",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_bronze-age_fx",
+      "name": "Bronze Age — FX",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_150k_drums",
+      "name": "150K — Drums",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_150k_bass",
+      "name": "150K — Bass",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_150k_music",
+      "name": "150K — Music",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_150k_vocals",
+      "name": "150K — Vocals",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_150k_fx",
+      "name": "150K — FX",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_power-plant_drums",
+      "name": "Power Plant — Drums",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_power-plant_bass",
+      "name": "Power Plant — Bass",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_power-plant_music",
+      "name": "Power Plant — Music",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_power-plant_vocals",
+      "name": "Power Plant — Vocals",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_power-plant_fx",
+      "name": "Power Plant — FX",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "cover_ep_the-eclipse-protocol",
+      "name": "The Eclipse Protocol — Cover",
+      "rarity": "rare",
+      "kind": "cover",
+      "artUrl": "/art/cover_ep_eclipse.png"
+    },
+    {
+      "id": "stem_song_silver-veil_drums",
+      "name": "Silver Veil — Drums",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_silver-veil_bass",
+      "name": "Silver Veil — Bass",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_silver-veil_music",
+      "name": "Silver Veil — Music",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_silver-veil_vocals",
+      "name": "Silver Veil — Vocals",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_silver-veil_fx",
+      "name": "Silver Veil — FX",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_slow-feet_drums",
+      "name": "Slow Feet — Drums",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_slow-feet_bass",
+      "name": "Slow Feet — Bass",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_slow-feet_music",
+      "name": "Slow Feet — Music",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_slow-feet_vocals",
+      "name": "Slow Feet — Vocals",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_slow-feet_fx",
+      "name": "Slow Feet — FX",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_watching-us_drums",
+      "name": "Watching Us — Drums",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_watching-us_bass",
+      "name": "Watching Us — Bass",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_watching-us_music",
+      "name": "Watching Us — Music",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_watching-us_vocals",
+      "name": "Watching Us — Vocals",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_watching-us_fx",
+      "name": "Watching Us — FX",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "cover_ep_cloudcore-mini-set",
+      "name": "CloudCore Mini Set — Cover",
+      "rarity": "rare",
+      "kind": "cover",
+      "artUrl": "/art/cover_ep_cloudcore.png"
+    },
+    {
+      "id": "stem_song_hold-it-down_drums",
+      "name": "Hold it Down — Drums",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_hold-it-down_bass",
+      "name": "Hold it Down — Bass",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_hold-it-down_music",
+      "name": "Hold it Down — Music",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_hold-it-down_vocals",
+      "name": "Hold it Down — Vocals",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_hold-it-down_fx",
+      "name": "Hold it Down — FX",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_memory-walk_drums",
+      "name": "Memory Walk — Drums",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_memory-walk_bass",
+      "name": "Memory Walk — Bass",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_memory-walk_music",
+      "name": "Memory Walk — Music",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_memory-walk_vocals",
+      "name": "Memory Walk — Vocals",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_memory-walk_fx",
+      "name": "Memory Walk — FX",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_tmd-my-dms_drums",
+      "name": "TM’D my DM’S — Drums",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_tmd-my-dms_bass",
+      "name": "TM’D my DM’S — Bass",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_tmd-my-dms_music",
+      "name": "TM’D my DM’S — Music",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_tmd-my-dms_vocals",
+      "name": "TM’D my DM’S — Vocals",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_tmd-my-dms_fx",
+      "name": "TM’D my DM’S — FX",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_casse-toi-ft-spooklet_drums",
+      "name": "Casse Toi — Drums",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_casse-toi-ft-spooklet_bass",
+      "name": "Casse Toi — Bass",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_casse-toi-ft-spooklet_music",
+      "name": "Casse Toi — Music",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_casse-toi-ft-spooklet_vocals",
+      "name": "Casse Toi — Vocals",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_casse-toi-ft-spooklet_fx",
+      "name": "Casse Toi — FX",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_over-and-out_drums",
+      "name": "Over & Out — Drums",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_over-and-out_bass",
+      "name": "Over & Out — Bass",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_over-and-out_music",
+      "name": "Over & Out — Music",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_over-and-out_vocals",
+      "name": "Over & Out — Vocals",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_over-and-out_fx",
+      "name": "Over & Out — FX",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_when-inches-became-miles_drums",
+      "name": "When Inches Became Miles — Drums",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_when-inches-became-miles_bass",
+      "name": "When Inches Became Miles — Bass",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_when-inches-became-miles_music",
+      "name": "When Inches Became Miles — Music",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_when-inches-became-miles_vocals",
+      "name": "When Inches Became Miles — Vocals",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_when-inches-became-miles_fx",
+      "name": "When Inches Became Miles — FX",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "cover_ep_sloucho-legacy",
+      "name": "Sloucho Legacy — Cover",
+      "rarity": "rare",
+      "kind": "cover",
+      "artUrl": "/art/cover_ep_sloucho-legacy.png"
+    },
+    {
+      "id": "stem_song_mind-traveller_drums",
+      "name": "Mind Traveller — Drums",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_mind-traveller_bass",
+      "name": "Mind Traveller — Bass",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_mind-traveller_music",
+      "name": "Mind Traveller — Music",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_mind-traveller_vocals",
+      "name": "Mind Traveller — Vocals",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_mind-traveller_fx",
+      "name": "Mind Traveller — FX",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_mutant_drums",
+      "name": "Mutant — Drums",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_mutant_bass",
+      "name": "Mutant — Bass",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_mutant_music",
+      "name": "Mutant — Music",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_mutant_vocals",
+      "name": "Mutant — Vocals",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_mutant_fx",
+      "name": "Mutant — FX",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_come-around_drums",
+      "name": "Come Around — Drums",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_come-around_bass",
+      "name": "Come Around — Bass",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_come-around_music",
+      "name": "Come Around — Music",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_come-around_vocals",
+      "name": "Come Around — Vocals",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_come-around_fx",
+      "name": "Come Around — FX",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_brand-new_drums",
+      "name": "Brand New — Drums",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_brand-new_bass",
+      "name": "Brand New — Bass",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_brand-new_music",
+      "name": "Brand New — Music",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_brand-new_vocals",
+      "name": "Brand New — Vocals",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_brand-new_fx",
+      "name": "Brand New — FX",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_super-maramu-2000_drums",
+      "name": "Super Maramu 2000 — Drums",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_super-maramu-2000_bass",
+      "name": "Super Maramu 2000 — Bass",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_super-maramu-2000_music",
+      "name": "Super Maramu 2000 — Music",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_super-maramu-2000_vocals",
+      "name": "Super Maramu 2000 — Vocals",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_super-maramu-2000_fx",
+      "name": "Super Maramu 2000 — FX",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_make-it-work_drums",
+      "name": "Make it Work — Drums",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_make-it-work_bass",
+      "name": "Make it Work — Bass",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_make-it-work_music",
+      "name": "Make it Work — Music",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_make-it-work_vocals",
+      "name": "Make it Work — Vocals",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_make-it-work_fx",
+      "name": "Make it Work — FX",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_two-thousands_drums",
+      "name": "Two Thousands — Drums",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_two-thousands_bass",
+      "name": "Two Thousands — Bass",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_two-thousands_music",
+      "name": "Two Thousands — Music",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_two-thousands_vocals",
+      "name": "Two Thousands — Vocals",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_two-thousands_fx",
+      "name": "Two Thousands — FX",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_rocks_drums",
+      "name": "Rocks — Drums",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_rocks_bass",
+      "name": "Rocks — Bass",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_rocks_music",
+      "name": "Rocks — Music",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_rocks_vocals",
+      "name": "Rocks — Vocals",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_rocks_fx",
+      "name": "Rocks — FX",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_lights-on_drums",
+      "name": "Lights On — Drums",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_lights-on_bass",
+      "name": "Lights On — Bass",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_lights-on_music",
+      "name": "Lights On — Music",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_lights-on_vocals",
+      "name": "Lights On — Vocals",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_lights-on_fx",
+      "name": "Lights On — FX",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "cover_ep_npc",
+      "name": "NPC — Cover",
+      "rarity": "rare",
+      "kind": "cover",
+      "artUrl": "/art/cover_ep_npc.png"
+    },
+    {
+      "id": "stem_song_gimme-it_drums",
+      "name": "Gimme It — Drums",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_gimme-it_bass",
+      "name": "Gimme It — Bass",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_gimme-it_music",
+      "name": "Gimme It — Music",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_gimme-it_vocals",
+      "name": "Gimme It — Vocals",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_gimme-it_fx",
+      "name": "Gimme It — FX",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "cover_single_gimme-it-ft-curtisy",
+      "name": "Gimme It — Cover",
+      "rarity": "rare",
+      "kind": "cover",
+      "artUrl": "/art/cover_single_gimme-it.png"
+    },
+    {
+      "id": "stem_song_rhinestones_drums",
+      "name": "Rhinestones — Drums",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_rhinestones_bass",
+      "name": "Rhinestones — Bass",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_rhinestones_music",
+      "name": "Rhinestones — Music",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_rhinestones_vocals",
+      "name": "Rhinestones — Vocals",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "stem_song_rhinestones_fx",
+      "name": "Rhinestones — FX",
+      "rarity": "common",
+      "kind": "stem",
+      "artUrl": null
+    },
+    {
+      "id": "cover_single_rhinestones",
+      "name": "Rhinestones — Cover",
+      "rarity": "rare",
+      "kind": "cover",
+      "artUrl": "/art/cover_single_rhinestones.png"
+    },
+    {
+      "id": "frag_anu_1",
+      "name": "Anu Fragment 1",
+      "rarity": "common",
+      "kind": "fragment",
+      "artUrl": null
+    },
+    {
+      "id": "frag_anu_2",
+      "name": "Anu Fragment 2",
+      "rarity": "common",
+      "kind": "fragment",
+      "artUrl": null
+    },
+    {
+      "id": "frag_anu_3",
+      "name": "Anu Fragment 3",
+      "rarity": "common",
+      "kind": "fragment",
+      "artUrl": null
+    },
+    {
+      "id": "frag_eru_1",
+      "name": "Eru Fragment 1",
+      "rarity": "common",
+      "kind": "fragment",
+      "artUrl": null
+    },
+    {
+      "id": "frag_eru_2",
+      "name": "Eru Fragment 2",
+      "rarity": "common",
+      "kind": "fragment",
+      "artUrl": null
+    },
+    {
+      "id": "frag_eru_3",
+      "name": "Eru Fragment 3",
+      "rarity": "common",
+      "kind": "fragment",
+      "artUrl": null
+    },
+    {
+      "id": "frag_siu_1",
+      "name": "Siu Fragment 1",
+      "rarity": "common",
+      "kind": "fragment",
+      "artUrl": null
+    },
+    {
+      "id": "frag_siu_2",
+      "name": "Siu Fragment 2",
+      "rarity": "common",
+      "kind": "fragment",
+      "artUrl": null
+    },
+    {
+      "id": "frag_siu_3",
+      "name": "Siu Fragment 3",
+      "rarity": "common",
+      "kind": "fragment",
+      "artUrl": null
+    },
+    {
+      "id": "frag_lostform_1",
+      "name": "LostForm Fragment 1",
+      "rarity": "common",
+      "kind": "fragment",
+      "artUrl": null
+    },
+    {
+      "id": "frag_lostform_2",
+      "name": "LostForm Fragment 2",
+      "rarity": "common",
+      "kind": "fragment",
+      "artUrl": null
+    },
+    {
+      "id": "frag_lostform_3",
+      "name": "LostForm Fragment 3",
+      "rarity": "common",
+      "kind": "fragment",
+      "artUrl": null
+    },
+    {
+      "id": "frag_mindform_1",
+      "name": "MindForm Fragment 1",
+      "rarity": "common",
+      "kind": "fragment",
+      "artUrl": null
+    },
+    {
+      "id": "frag_mindform_2",
+      "name": "MindForm Fragment 2",
+      "rarity": "common",
+      "kind": "fragment",
+      "artUrl": null
+    },
+    {
+      "id": "frag_mindform_3",
+      "name": "MindForm Fragment 3",
+      "rarity": "common",
+      "kind": "fragment",
+      "artUrl": null
+    },
+    {
+      "id": "frag_protector_1",
+      "name": "The Protector Fragment 1",
+      "rarity": "common",
+      "kind": "fragment",
+      "artUrl": null
+    },
+    {
+      "id": "frag_protector_2",
+      "name": "The Protector Fragment 2",
+      "rarity": "common",
+      "kind": "fragment",
+      "artUrl": null
+    },
+    {
+      "id": "frag_protector_3",
+      "name": "The Protector Fragment 3",
+      "rarity": "common",
+      "kind": "fragment",
+      "artUrl": null
+    },
+    {
+      "id": "unrel_vault-demo",
+      "name": "Love is Fear",
       "rarity": "epic",
-      "artUrl": "/mock/art/disc.png"
+      "kind": "unreleased",
+      "artUrl": null
     },
     {
-      "id": "itm_004",
-      "name": "Aurora Blade",
+      "id": "gold_char_001",
+      "name": "Sloucho AthrúForm",
       "rarity": "legendary",
-      "artUrl": "/mock/art/blade.png"
+      "kind": "character",
+      "artUrl": "/img/characters/sloucho-athruform.png"
+    },
+    {
+      "id": "gold_char_002",
+      "name": "Rás AthrúForm",
+      "rarity": "legendary",
+      "kind": "character",
+      "artUrl": "/img/characters/ras-athruform.png"
+    },
+    {
+      "id": "gold_char_003",
+      "name": "Maramu The Protector",
+      "rarity": "legendary",
+      "kind": "character",
+      "artUrl": "/img/characters/maramu-the-protector.png"
     }
   ]
 }

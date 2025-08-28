@@ -1,0 +1,76 @@
+{
+  "characters": [
+    {
+      "id": "char_anu",
+      "name": "Anu",
+      "kind": "character",
+      "rarity": "common",
+      "image": "/img/characters/anu.png",
+      "fragments": [
+        { "id": "frag_anu_1", "name": "Anu Fragment 1", "kind": "fragment", "rarity": "common", "text": "Entry 1…" },
+        { "id": "frag_anu_2", "name": "Anu Fragment 2", "kind": "fragment", "rarity": "common", "text": "Entry 2…" },
+        { "id": "frag_anu_3", "name": "Anu Fragment 3", "kind": "fragment", "rarity": "common", "text": "Entry 3…" }
+      ]
+    },
+    {
+      "id": "char_eru",
+      "name": "Eru",
+      "kind": "character",
+      "rarity": "common",
+      "image": "/img/characters/eru.png",
+      "fragments": [
+        { "id": "frag_eru_1", "name": "Eru Fragment 1", "kind": "fragment", "rarity": "common", "text": "Entry 1…" },
+        { "id": "frag_eru_2", "name": "Eru Fragment 2", "kind": "fragment", "rarity": "common", "text": "Entry 2…" },
+        { "id": "frag_eru_3", "name": "Eru Fragment 3", "kind": "fragment", "rarity": "common", "text": "Entry 3…" }
+      ]
+    },
+    {
+      "id": "char_siu",
+      "name": "Siu",
+      "kind": "character",
+      "rarity": "common",
+      "image": "/img/characters/siu.png",
+      "fragments": [
+        { "id": "frag_siu_1", "name": "Siu Fragment 1", "kind": "fragment", "rarity": "common", "text": "Entry 1…" },
+        { "id": "frag_siu_2", "name": "Siu Fragment 2", "kind": "fragment", "rarity": "common", "text": "Entry 2…" },
+        { "id": "frag_siu_3", "name": "Siu Fragment 3", "kind": "fragment", "rarity": "common", "text": "Entry 3…" }
+      ]
+    },
+    {
+      "id": "char_lostform",
+      "name": "LostForm",
+      "kind": "character",
+      "rarity": "common",
+      "image": "/img/characters/lostform.png",
+      "fragments": [
+        { "id": "frag_lostform_1", "name": "LostForm Fragment 1", "kind": "fragment", "rarity": "common", "text": "Entry 1…" },
+        { "id": "frag_lostform_2", "name": "LostForm Fragment 2", "kind": "fragment", "rarity": "common", "text": "Entry 2…" },
+        { "id": "frag_lostform_3", "name": "LostForm Fragment 3", "kind": "fragment", "rarity": "common", "text": "Entry 3…" }
+      ]
+    },
+    {
+      "id": "char_mindform",
+      "name": "MindForm",
+      "kind": "character",
+      "rarity": "common",
+      "image": "/img/characters/mindform.png",
+      "fragments": [
+        { "id": "frag_mindform_1", "name": "MindForm Fragment 1", "kind": "fragment", "rarity": "common", "text": "Entry 1…" },
+        { "id": "frag_mindform_2", "name": "MindForm Fragment 2", "kind": "fragment", "rarity": "common", "text": "Entry 2…" },
+        { "id": "frag_mindform_3", "name": "MindForm Fragment 3", "kind": "fragment", "rarity": "common", "text": "Entry 3…" }
+      ]
+    },
+    {
+      "id": "char_protector",
+      "name": "The Protector",
+      "kind": "character",
+      "rarity": "common",
+      "image": "/img/characters/protector.png",
+      "fragments": [
+        { "id": "frag_protector_1", "name": "Protector Fragment 1", "kind": "fragment", "rarity": "common", "text": "Entry 1…" },
+        { "id": "frag_protector_2", "name": "Protector Fragment 2", "kind": "fragment", "rarity": "common", "text": "Entry 2…" },
+        { "id": "frag_protector_3", "name": "Protector Fragment 3", "kind": "fragment", "rarity": "common", "text": "Entry 3…" }
+      ]
+    }
+  ]
+}

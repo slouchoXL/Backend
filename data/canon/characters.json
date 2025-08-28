@@ -1,0 +1,5 @@
+{ "goldenCharacters": [
+  { "id": "gold_char_001", "name": "Gilded Nova",  "kind": "character_golden", "rarity": "legendary", "image": "/img/characters/gilded-nova.png" },
+  { "id": "gold_char_002", "name": "Auric Warden", "kind": "character_golden", "rarity": "legendary", "image": "/img/characters/auric-warden.png" },
+  { "id": "gold_char_003", "name": "Solaris King", "kind": "character_golden", "rarity": "legendary", "image": "/img/characters/solaris-king.png" }
+]}

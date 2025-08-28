@@ -34,8 +34,6 @@ function requireAdmin() {
   return supaAdmin;
 }
 
-
-
 /* -------------------- Node/Express bootstrap ------------------------- */
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
@@ -89,6 +87,49 @@ const state = {
   idempo: new Map(),
   pendingOpens: new Map()
 };
+
+const CANON_DIR = path.join(__dirname, 'data', 'canon');
+
+function loadCanonFile(name) {
+  return JSON.parse(fs.readFileSync(path.join(CANON_DIR, name), 'utf8'));
+}
+
+const canon = {
+  eps:        loadCanonFile('eps.json'),
+  fragments:  loadCanonFile('fragments.json'),
+  unreleased: loadCanonFile('unreleased.json'),
+  characters: loadCanonFile('characters.json')
+};
+
+// --- Hot-reload canon on file changes ---
+function reloadCanon() {
+  try {
+    const next = {
+      eps:        loadCanonFile('eps.json'),
+      fragments:  loadCanonFile('fragments.json'),
+      unreleased: loadCanonFile('unreleased.json'),
+      characters: loadCanonFile('characters.json')
+    };
+    canon.eps = next.eps;
+    canon.fragments = next.fragments;
+    canon.unreleased = next.unreleased;
+    canon.characters = next.characters;
+    console.log('[catalog] canon reloaded');
+  } catch (err) {
+    console.error('[catalog] reload failed:', err.message);
+  }
+}
+
+let reloadTimer = null;
+try {
+  fs.watch(CANON_DIR, { persistent: true }, () => {
+    clearTimeout(reloadTimer);
+    reloadTimer = setTimeout(reloadCanon, 150); // debounce
+  });
+  console.log('[catalog] watching', CANON_DIR);
+} catch (err) {
+  console.warn('[catalog] watch unavailable:', err.message);
+}
 
 /* -------------------- Local JSON storage (anon fallback) ------------- */
 const USERS_DIR = path.join(__dirname, 'data', 'users');
@@ -155,9 +196,9 @@ async function dbGetInventory(userId) {
       .eq('user_id', userId)
       .maybeSingle(),
     sb.from('inventory_items')
-      .select('item_id, name, rarity, art_url, created_at')
+      .select('item_id, name, rarity, art_url, qty, acquired_at')
       .eq('owner_id', userId)
-      .order('created_at', { ascending: true })
+      .order('acquired_at', { ascending: true })
   ]);
 
   if (profErr)  throw profErr;
@@ -169,10 +210,66 @@ async function dbGetInventory(userId) {
       itemId: it.item_id,
       name:   it.name,
       rarity: it.rarity,
-      artUrl: it.art_url
+      artUrl: it.art_url,
+      qty:    it.qty,
+      acquiredAt: it.acquired_at
     }))
   };
 }
+
+function computeProgress(inv, canon) {
+  const owned = new Set(inv.items.map(it => it.itemId));
+
+  const songs = [];
+  const eps = [];
+  const singles = [];
+  const fragments = [];
+  const characters = [];
+
+  // --- EPs ---
+  for (const ep of canon.eps.eps || []) {
+    let songsComplete = 0;
+    for (const song of ep.songs) {
+      const ownedStems = song.stems.filter(s => owned.has(s.id)).length;
+      const totalStems = song.stems.length;
+      const complete = ownedStems === totalStems;
+      if (complete) songsComplete++;
+      songs.push({ id: song.id, name: song.name, ownedStems, totalStems, complete, epId: ep.id });
+    }
+    const coverOwned = ep.cover && owned.has(ep.cover.id);
+    const epComplete = songsComplete === ep.songs.length && coverOwned;
+    eps.push({ id: ep.id, name: ep.name, songsComplete, totalSongs: ep.songs.length, coverOwned, complete: epComplete });
+    if (epComplete && ep.character) {
+      characters.push({ id: ep.character.id, name: ep.character.name, unlocked: true, source: ep.id });
+    }
+  }
+
+  // --- Singles ---
+  for (const s of canon.eps.singles || []) {
+    const ownedStems = s.stems.filter(st => owned.has(st.id)).length;
+    const totalStems = s.stems.length;
+    const coverOwned = s.cover && owned.has(s.cover.id);
+    const complete = ownedStems === totalStems && coverOwned;
+    singles.push({ id: s.id, name: s.name, ownedStems, totalStems, coverOwned, complete });
+    if (complete && s.character) {
+      characters.push({ id: s.character.id, name: s.character.name, unlocked: true, source: s.id });
+    }
+  }
+
+  // --- Fragments ---
+  for (const char of canon.fragments.characters || []) {
+    const ownedCount = char.fragments.filter(f => owned.has(f.id)).length;
+    const total = char.fragments.length;
+    const complete = ownedCount === total;
+    fragments.push({ characterId: char.id, name: char.name, owned: ownedCount, total, complete });
+    if (complete) {
+      characters.push({ id: char.id, name: char.name, unlocked: true, source: 'fragments' });
+    }
+  }
+
+  return { songs, eps, singles, fragments, characters };
+}
+
 
 async function dbIncBalance(userId, delta) {
   const sb = requireAdmin();
@@ -198,15 +295,22 @@ async function dbDebitBalance(userId, amount) {
 async function dbAddInventoryItems(userId, items) {
   if (!items?.length) return;
   const sb = requireAdmin();
-  const rows = items.map(it => ({
-    owner_id: userId,
-    item_id:  it.itemId,
-    name:     it.name,
-    rarity:   it.rarity,
-    art_url:  it.artUrl ?? null
+
+  // shape items for the RPC
+  const payload = items.map(it => ({
+    item_id: it.itemId,
+    name: it.name,
+    rarity: it.rarity,
+    art_url: it.artUrl ?? null,
+    qty: it.qty ?? 1
   }));
-  const { error } = await sb.from('inventory_items').insert(rows);
+
+  const { data, error } = await sb.rpc('add_inventory_items', {
+    p_owner: userId,
+    p_items: payload
+  });
   if (error) throw error;
+  return data; // { added, duplicates }
 }
 
 // Pending opens stored per user (one active at a time)
@@ -214,19 +318,21 @@ async function dbSetPendingOpen(userId, payload) {
   const sb = requireAdmin();
   const { error } = await sb
     .from('pending_opens')
-    .upsert({ owner_id: userId, data: payload }, { onConflict: 'owner_id' });
+    .upsert({ owner_id: userId, items: payload }, { onConflict: 'owner_id' });
   if (error) throw error;
 }
+
 async function dbGetPendingOpen(userId) {
   const sb = requireAdmin();
   const { data, error } = await sb
     .from('pending_opens')
-    .select('data')
+    .select('items')
     .eq('owner_id', userId)
     .maybeSingle();
   if (error) throw error;
-  return data?.data || null;
+  return data?.items || null;
 }
+
 async function dbClearPendingOpen(userId) {
   const sb = requireAdmin();
   const { error } = await sb
@@ -237,53 +343,17 @@ async function dbClearPendingOpen(userId) {
 }
 
 /* -------------------- Debug: env + db + whoami ----------------------- */
-// 1) Are the env vars visible on the server?
-
-// Add this route to test JWT verification
-app.get('/api/debug/auth-test', async (req, res) => {
-  try {
-    const authHeader = req.get('authorization');
-    console.log('Auth header received:', !!authHeader);
-    console.log('Player ID:', req.playerId);
-    console.log('User object:', req.user);
-    console.log('Is UUID:', isUUID(req.playerId));
-    
-    if (isUUID(req.playerId)) {
-      const inventory = await dbGetInventory(req.playerId);
-      return res.json({
-        success: true,
-        playerId: req.playerId,
-        hasSupabase: !!supaAdmin,
-        inventory
-      });
-    }
-    
-    return res.json({
-      success: true,
-      playerId: req.playerId,
-      isAnon: true
-    });
-  } catch (e) {
-    console.error('Auth test error:', e);
-    return res.status(500).json({ error: e.message });
-  }
-});
-
-// Deep DB probe: checks connectivity, key validity, and whether tables exist
 app.get('/api/debug/db-deep', async (_req, res) => {
   try {
     if (!SUPABASE_URL || !SUPA_SERVICE_ROLE) {
       return res.status(500).json({ ok:false, phase:'env', error:'Missing SUPABASE_URL or SERVICE_ROLE' });
     }
 
-    // 1) Basic connectivity: a harmless select against a *public* table we expect to exist
-    // We'll try profiles first (expected in this project). If it 42P01's, table doesn't exist.
     const testUser = '00000000-0000-0000-0000-000000000000'; // dummy UUID
     const up1 = await supaAdmin
       .from('profiles')
       .upsert({ user_id: testUser }, { onConflict: 'user_id', ignoreDuplicates: true });
 
-    // If profiles is missing, this returns an error with code 42P01 (undefined_table)
     if (up1.error) {
       return res.status(500).json({
         ok:false,
@@ -294,7 +364,6 @@ app.get('/api/debug/db-deep', async (_req, res) => {
       });
     }
 
-    // 2) Try a count on inventory_items (should exist once schema is created)
     const sel2 = await supaAdmin
       .from('inventory_items')
       .select('item_id', { count: 'exact', head: true });
@@ -309,7 +378,6 @@ app.get('/api/debug/db-deep', async (_req, res) => {
       });
     }
 
-    // 3) Try pending_opens existence
     const sel3 = await supaAdmin
       .from('pending_opens')
       .select('owner_id', { count: 'exact', head: true });
@@ -336,19 +404,17 @@ app.get('/api/debug/env', (_req, res) => {
     has_SUPABASE_URL:        !!SUPABASE_URL,
     has_SUPABASE_SERVICE_ROLE: !!SUPA_SERVICE_ROLE,
     has_SUPABASE_JWT_SECRET: !!SUPABASE_JWT_SECRET,
-    // lengths only; never echo secrets
     SUPABASE_URL_len:        SUPABASE_URL ? SUPABASE_URL.length : 0,
     SERVICE_ROLE_len:        SUPA_SERVICE_ROLE ? SUPA_SERVICE_ROLE.length : 0,
     jwt_secret_len:          SUPABASE_JWT_SECRET ? SUPABASE_JWT_SECRET.length : 0
   });
 });
 
-// 2) Can we talk to Supabase and see the tables?
 app.get('/api/debug/db', async (_req, res) => {
   try {
     const sb = requireAdmin();
     const [p, i, po] = await Promise.all([
-      sb.from('profiles').select('id, coin_balance').limit(1),
+      sb.from('profiles').select('user_id, coin_balance').limit(1),
       sb.from('inventory_items').select('owner_id, item_id').limit(1),
       sb.from('pending_opens').select('owner_id').limit(1)
     ]);
@@ -368,7 +434,61 @@ app.get('/api/debug/db', async (_req, res) => {
   }
 });
 
-// (kept) 3) Who am I?
+// View dupe shards + guarantee tokens for current user
+app.get('/api/debug/dupes', async (req, res) => {
+  try {
+    if (!isUUID(req.playerId)) {
+      // anon users don't have DB rows; just echo zeros
+      return res.json({
+        userId: req.playerId,
+        shards: 0,
+        guarantee_tokens: 0,
+        dup_item_kinds: 0,
+        dup_total_qty_over_1: 0
+      });
+    }
+
+    const sb = requireAdmin();
+    await dbEnsureProfile(req.playerId);
+
+    // profile tokens
+    const { data: prof, error: profErr } = await sb
+      .from('profiles')
+      .select('coin_balance, guarantee_tokens')
+      .eq('user_id', req.playerId)
+      .maybeSingle();
+    if (profErr) throw profErr;
+
+    // dupe bank shards
+    const { data: bank, error: bankErr } = await sb
+      .from('dupe_bank')
+      .select('shards')
+      .eq('owner_id', req.playerId)
+      .maybeSingle();
+    if (bankErr) throw bankErr;
+
+    // quick duplicate overview (how many item_ids have qty > 1, and total extra copies)
+    const { data: inv, error: invErr } = await sb
+      .from('inventory_items')
+      .select('qty')
+      .eq('owner_id', req.playerId);
+    if (invErr) throw invErr;
+
+    const dup_item_kinds = (inv || []).filter(r => (r.qty ?? 1) > 1).length;
+    const dup_total_qty_over_1 = (inv || []).reduce((sum, r) => sum + Math.max((r.qty ?? 1) - 1, 0), 0);
+
+    return res.json({
+      userId: req.playerId,
+      shards: bank?.shards ?? 0,
+      guarantee_tokens: prof?.guarantee_tokens ?? 0,
+      dup_item_kinds,
+      dup_total_qty_over_1
+    });
+  } catch (e) {
+    return res.status(500).json({ error: String(e.message || e) });
+  }
+});
+
 app.get('/api/debug/whoami', (req, res) => {
   res.json({
     playerId: req.playerId,
@@ -385,22 +505,30 @@ app.get('/api/packs', (_req, res) => {
   res.json({ packs: db.packs });
 });
 
+app.get('/api/catalog', (_req, res) => {
+  res.json(canon);
+});
+
+// Inventory (per-user; Supabase for authed UUID; JSON for anon)
 // Inventory (per-user; Supabase for authed UUID; JSON for anon)
 app.get('/api/inventory', async (req, res) => {
   try {
+    let inv;
     if (isUUID(req.playerId)) {
-      const inv = await dbGetInventory(req.playerId);
-      return res.json(inv);
+      inv = await dbGetInventory(req.playerId);
     } else {
-      const inv = loadInventory(req.playerId);
-      return res.json(inv);
+      inv = loadInventory(req.playerId);
     }
+
+    const progress = computeProgress(inv, canon);
+    return res.json({ ...inv, progress });
   } catch (e) {
     return res.status(500).json({ error: String(e.message || e) });
   }
 });
 
-// OPEN PACK (unchanged flow; DB vs anon branch)
+
+// OPEN PACK (adds guarantee token consumption + one new item if available)
 app.post('/api/packs/open', async (req, res) => {
   try {
     const { packId, idempotencyKey } = req.body || {};
@@ -442,6 +570,34 @@ app.post('/api/packs/open', async (req, res) => {
     const results = [];
     const openingSeenIds = new Set();
 
+    // --- NEW: consume a guarantee token (if any)
+    let guarantee = false;
+    if (isUUID(req.playerId)) {
+      const sb = requireAdmin();
+      const { data: used, error: gErr } = await sb.rpc('consume_guarantee_token', { p_owner: req.playerId });
+      if (gErr) console.warn('consume_guarantee_token failed:', gErr.message);
+      guarantee = !!used;
+    }
+
+    // helper sets
+    const ownedIds = new Set((inv.items || []).map(x => x.itemId));
+
+    function pickAnyByRarity(rarity, excludeIds) {
+      const pool  = db.items.filter(i => i.rarity === rarity && !excludeIds.has(i.id));
+      if (pool.length === 0) return null;
+      return pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    function pickNewItemPreferRarity(rarity, excludeIds) {
+      // try chosen rarity first
+      const poolR = db.items.filter(i => i.rarity === rarity && !ownedIds.has(i.id) && !excludeIds.has(i.id));
+      if (poolR.length > 0) return poolR[Math.floor(Math.random() * poolR.length)];
+      // broaden to any rarity but still new
+      const poolAll = db.items.filter(i => !ownedIds.has(i.id) && !excludeIds.has(i.id));
+      if (poolAll.length === 0) return null;
+      return poolAll[Math.floor(Math.random() * poolAll.length)];
+    }
+
     function pickItemForRarity(rarity){
       const pool  = db.items.filter(i => i.rarity === rarity);
       const fresh = pool.filter(i => !openingSeenIds.has(i.id));
@@ -453,13 +609,25 @@ app.post('/api/packs/open', async (req, res) => {
 
     for (let i = 0; i < pullsN; i++){
       const rarity = pickRarity(table);
-      const item   = pickItemForRarity(rarity);
+
+      let item = null;
+      if (guarantee) {
+        item = pickNewItemPreferRarity(rarity, openingSeenIds);
+        guarantee = false; // only one slot per open
+      }
+      if (!item) {
+        item = pickAnyByRarity(rarity, openingSeenIds) || db.items.find(i => i.rarity === rarity);
+      }
+      if (!item) continue; // edge case: nothing available
+
+      openingSeenIds.add(item.id);
       const isDupe = (inv.items || []).some(x => x.itemId === item.id);
       results.push({
         itemId: item.id,
         name:   item.name,
         rarity: item.rarity,
         artUrl: item.artUrl,
+        kind:   item.kind,
         isDupe
       });
     }
@@ -474,6 +642,7 @@ app.post('/api/packs/open', async (req, res) => {
         dupeCredit: { COIN: 0 }
       },
       pity: { legendarySince: state.pity.legendarySince }
+      // (optional in future) guaranteeApplied: originally consumed above
     };
 
     if (isUUID(req.playerId)) {
@@ -523,22 +692,31 @@ app.post('/api/collection/add', async (req, res) => {
     }
 
     const mapById = new Map(pending.results.map(it => [it.itemId, it]));
-    const itemsToAdd = toAddIds
-      .map(id => mapById.get(id))
-      .filter(Boolean)
-      .map(it => ({
+    const itemsToAdd = toAddIds.map(id => mapById.get(id)).filter(Boolean);
+
+    if (isUUID(req.playerId)) {
+      // Map pending items → RPC payload (one call handles dupes via qty)
+      const payloadItems = itemsToAdd.map(it => ({
         itemId: it.itemId,
         name:   it.name,
         rarity: it.rarity,
-        artUrl: it.artUrl
+        artUrl: it.artUrl,
+        qty:    1
       }));
 
-    if (isUUID(req.playerId)) {
-      await dbAddInventoryItems(req.playerId, itemsToAdd);
+        const sb = requireAdmin();
+        const { data, error } = await sb.rpc('add_items_and_award_shards', {
+          p_owner: req.playerId,
+          p_items: payloadItems
+        });
+        if (error) throw error;
       await dbClearPendingOpen(req.playerId);
+
+      // Return updated inventory
       const inv = await dbGetInventory(req.playerId);
       return res.json({ ok: true, inventory: inv });
     } else {
+      // anon fallback — just keep JSON file
       const inv = loadInventory(req.playerId);
       inv.items.push(...itemsToAdd);
       state.pendingOpens.delete(req.playerId);
@@ -546,6 +724,7 @@ app.post('/api/collection/add', async (req, res) => {
       return res.json({ ok: true, inventory: inv });
     }
   } catch (e) {
+    console.error("collection/add error:", e);
     return res.status(500).json({ error: String(e.message || e) });
   }
 });

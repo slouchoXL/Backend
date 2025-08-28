@@ -1,0 +1,389 @@
+{
+  "eps": [
+    {
+      "id": "ep_echoes",
+      "name": "ECHOES",
+      "kind": "ep",
+      "cover": { "id": "cover_ep_echoes", "name": "ECHOES — Cover", "kind": "cover", "rarity": "rare", "image": "/art/cover_ep_echoes.png" },
+      "unlocksCharacter": { "id": "char_ep_echoes", "name": "ECHOES", "kind": "character", "rarity": "legendary-only-unlock", "image": "/chars/char_ep_echoes.png" },
+      "songs": [
+        {
+          "id": "song_just-u",
+          "name": "Just U",
+          "kind": "song",
+          "stems": [
+            { "id": "stem_song_just-u_drums",  "name": "Just U — Drums",  "kind": "stem", "rarity": "common", "audio": "/audio/just-u/drums.mp3" },
+            { "id": "stem_song_just-u_bass",   "name": "Just U — Bass",   "kind": "stem", "rarity": "common", "audio": "/audio/just-u/bass.mp3" },
+            { "id": "stem_song_just-u_music",  "name": "Just U — Music",  "kind": "stem", "rarity": "common", "audio": "/audio/just-u/music.mp3" },
+            { "id": "stem_song_just-u_vocals", "name": "Just U — Vocals", "kind": "stem", "rarity": "common", "audio": "/audio/just-u/vocals.mp3" },
+            { "id": "stem_song_just-u_fx",     "name": "Just U — FX",     "kind": "stem", "rarity": "common", "audio": "/audio/just-u/fx.mp3" }
+          ]
+        },
+        {
+          "id": "song_always-remember",
+          "name": "Always Remember",
+          "kind": "song",
+          "stems": [
+            { "id": "stem_song_always-remember_drums",  "name": "Always Remember — Drums",  "kind": "stem", "rarity": "common", "audio": "/audio/always-remember/drums.mp3" },
+            { "id": "stem_song_always-remember_bass",   "name": "Always Remember — Bass",   "kind": "stem", "rarity": "common", "audio": "/audio/always-remember/bass.mp3" },
+            { "id": "stem_song_always-remember_music",  "name": "Always Remember — Music",  "kind": "stem", "rarity": "common", "audio": "/audio/always-remember/music.mp3" },
+            { "id": "stem_song_always-remember_vocals", "name": "Always Remember — Vocals", "kind": "stem", "rarity": "common", "audio": "/audio/always-remember/vocals.mp3" },
+            { "id": "stem_song_always-remember_fx",     "name": "Always Remember — FX",     "kind": "stem", "rarity": "common", "audio": "/audio/always-remember/fx.mp3" }
+          ]
+        },
+        {
+          "id": "song_i-found-u",
+          "name": "I found U",
+          "kind": "song",
+          "stems": [
+            { "id": "stem_song_i-found-u_drums",  "name": "I found U — Drums",  "kind": "stem", "rarity": "common", "audio": "/audio/i-found-u/drums.mp3" },
+            { "id": "stem_song_i-found-u_bass",   "name": "I found U — Bass",   "kind": "stem", "rarity": "common", "audio": "/audio/i-found-u/bass.mp3" },
+            { "id": "stem_song_i-found-u_music",  "name": "I found U — Music",  "kind": "stem", "rarity": "common", "audio": "/audio/i-found-u/music.mp3" },
+            { "id": "stem_song_i-found-u_vocals", "name": "I found U — Vocals", "kind": "stem", "rarity": "common", "audio": "/audio/i-found-u/vocals.mp3" },
+            { "id": "stem_song_i-found-u_fx",     "name": "I found U — FX",     "kind": "stem", "rarity": "common", "audio": "/audio/i-found-u/fx.mp3" }
+          ]
+        },
+        {
+          "id": "song_the-end",
+          "name": "The End",
+          "kind": "song",
+          "stems": [
+            { "id": "stem_song_the-end_drums",  "name": "The End — Drums",  "kind": "stem", "rarity": "common", "audio": "/audio/the-end/drums.mp3" },
+            { "id": "stem_song_the-end_bass",   "name": "The End — Bass",   "kind": "stem", "rarity": "common", "audio": "/audio/the-end/bass.mp3" },
+            { "id": "stem_song_the-end_music",  "name": "The End — Music",  "kind": "stem", "rarity": "common", "audio": "/audio/the-end/music.mp3" },
+            { "id": "stem_song_the-end_vocals", "name": "The End — Vocals", "kind": "stem", "rarity": "common", "audio": "/audio/the-end/vocals.mp3" },
+            { "id": "stem_song_the-end_fx",     "name": "The End — FX",     "kind": "stem", "rarity": "common", "audio": "/audio/the-end/fx.mp3" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ep_the-eclipse-protocol",
+      "name": "The Eclipse Protocol",
+      "kind": "ep",
+      "cover": { "id": "cover_ep_the-eclipse-protocol", "name": "The Eclipse Protocol — Cover", "kind": "cover", "rarity": "rare", "image": "/art/cover_ep_eclipse.png" },
+      "unlocksCharacter": { "id": "char_ep_sloucho-eclipse", "name": "Sloucho Eclipse", "kind": "character", "rarity": "legendary-only-unlock", "image": "/chars/char_ep_sloucho-eclipse.png" },
+      "songs": [
+        {
+          "id": "song_bronze-age",
+          "name": "Bronze Age",
+          "kind": "song",
+          "stems": [
+            { "id": "stem_song_bronze-age_drums",  "name": "Bronze Age — Drums",  "kind": "stem", "rarity": "common", "audio": "/audio/bronze-age/drums.mp3" },
+            { "id": "stem_song_bronze-age_bass",   "name": "Bronze Age — Bass",   "kind": "stem", "rarity": "common", "audio": "/audio/bronze-age/bass.mp3" },
+            { "id": "stem_song_bronze-age_music",  "name": "Bronze Age — Music",  "kind": "stem", "rarity": "common", "audio": "/audio/bronze-age/music.mp3" },
+            { "id": "stem_song_bronze-age_vocals", "name": "Bronze Age — Vocals", "kind": "stem", "rarity": "common", "audio": "/audio/bronze-age/vocals.mp3" },
+            { "id": "stem_song_bronze-age_fx",     "name": "Bronze Age — FX",     "kind": "stem", "rarity": "common", "audio": "/audio/bronze-age/fx.mp3" }
+          ]
+        },
+        {
+          "id": "song_150k",
+          "name": "150K",
+          "kind": "song",
+          "stems": [
+            { "id": "stem_song_150k_drums",  "name": "150K — Drums",  "kind": "stem", "rarity": "common", "audio": "/audio/150k/drums.mp3" },
+            { "id": "stem_song_150k_bass",   "name": "150K — Bass",   "kind": "stem", "rarity": "common", "audio": "/audio/150k/bass.mp3" },
+            { "id": "stem_song_150k_music",  "name": "150K — Music",  "kind": "stem", "rarity": "common", "audio": "/audio/150k/music.mp3" },
+            { "id": "stem_song_150k_vocals", "name": "150K — Vocals", "kind": "stem", "rarity": "common", "audio": "/audio/150k/vocals.mp3" },
+            { "id": "stem_song_150k_fx",     "name": "150K — FX",     "kind": "stem", "rarity": "common", "audio": "/audio/150k/fx.mp3" }
+          ]
+        },
+        {
+          "id": "song_power-plant",
+          "name": "Power Plant",
+          "kind": "song",
+          "stems": [
+            { "id": "stem_song_power-plant_drums",  "name": "Power Plant — Drums",  "kind": "stem", "rarity": "common", "audio": "/audio/power-plant/drums.mp3" },
+            { "id": "stem_song_power-plant_bass",   "name": "Power Plant — Bass",   "kind": "stem", "rarity": "common", "audio": "/audio/power-plant/bass.mp3" },
+            { "id": "stem_song_power-plant_music",  "name": "Power Plant — Music",  "kind": "stem", "rarity": "common", "audio": "/audio/power-plant/music.mp3" },
+            { "id": "stem_song_power-plant_vocals", "name": "Power Plant — Vocals", "kind": "stem", "rarity": "common", "audio": "/audio/power-plant/vocals.mp3" },
+            { "id": "stem_song_power-plant_fx",     "name": "Power Plant — FX",     "kind": "stem", "rarity": "common", "audio": "/audio/power-plant/fx.mp3" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ep_cloudcore-mini-set",
+      "name": "CloudCore Mini Set",
+      "kind": "ep",
+      "cover": { "id": "cover_ep_cloudcore-mini-set", "name": "CloudCore Mini Set — Cover", "kind": "cover", "rarity": "rare", "image": "/art/cover_ep_cloudcore.png" },
+      "unlocksCharacter": { "id": "char_ep_shiny-sloucho", "name": "Shiny Sloucho", "kind": "character", "rarity": "legendary-only-unlock", "image": "/chars/char_ep_shiny-sloucho.png" },
+      "songs": [
+        {
+          "id": "song_silver-veil",
+          "name": "Silver Veil",
+          "kind": "song",
+          "stems": [
+            { "id": "stem_song_silver-veil_drums",  "name": "Silver Veil — Drums",  "kind": "stem", "rarity": "common", "audio": "/audio/silver-veil/drums.mp3" },
+            { "id": "stem_song_silver-veil_bass",   "name": "Silver Veil — Bass",   "kind": "stem", "rarity": "common", "audio": "/audio/silver-veil/bass.mp3" },
+            { "id": "stem_song_silver-veil_music",  "name": "Silver Veil — Music",  "kind": "stem", "rarity": "common", "audio": "/audio/silver-veil/music.mp3" },
+            { "id": "stem_song_silver-veil_vocals", "name": "Silver Veil — Vocals", "kind": "stem", "rarity": "common", "audio": "/audio/silver-veil/vocals.mp3" },
+            { "id": "stem_song_silver-veil_fx",     "name": "Silver Veil — FX",     "kind": "stem", "rarity": "common", "audio": "/audio/silver-veil/fx.mp3" }
+          ]
+        },
+        {
+          "id": "song_slow-feet",
+          "name": "Slow Feet",
+          "kind": "song",
+          "stems": [
+            { "id": "stem_song_slow-feet_drums",  "name": "Slow Feet — Drums",  "kind": "stem", "rarity": "common", "audio": "/audio/slow-feet/drums.mp3" },
+            { "id": "stem_song_slow-feet_bass",   "name": "Slow Feet — Bass",   "kind": "stem", "rarity": "common", "audio": "/audio/slow-feet/bass.mp3" },
+            { "id": "stem_song_slow-feet_music",  "name": "Slow Feet — Music",  "kind": "stem", "rarity": "common", "audio": "/audio/slow-feet/music.mp3" },
+            { "id": "stem_song_slow-feet_vocals", "name": "Slow Feet — Vocals", "kind": "stem", "rarity": "common", "audio": "/audio/slow-feet/vocals.mp3" },
+            { "id": "stem_song_slow-feet_fx",     "name": "Slow Feet — FX",     "kind": "stem", "rarity": "common", "audio": "/audio/slow-feet/fx.mp3" }
+          ]
+        },
+        {
+          "id": "song_watching-us",
+          "name": "Watching Us",
+          "kind": "song",
+          "stems": [
+            { "id": "stem_song_watching-us_drums",  "name": "Watching Us — Drums",  "kind": "stem", "rarity": "common", "audio": "/audio/watching-us/drums.mp3" },
+            { "id": "stem_song_watching-us_bass",   "name": "Watching Us — Bass",   "kind": "stem", "rarity": "common", "audio": "/audio/watching-us/bass.mp3" },
+            { "id": "stem_song_watching-us_music",  "name": "Watching Us — Music",  "kind": "stem", "rarity": "common", "audio": "/audio/watching-us/music.mp3" },
+            { "id": "stem_song_watching-us_vocals", "name": "Watching Us — Vocals", "kind": "stem", "rarity": "common", "audio": "/audio/watching-us/vocals.mp3" },
+            { "id": "stem_song_watching-us_fx",     "name": "Watching Us — FX",     "kind": "stem", "rarity": "common", "audio": "/audio/watching-us/fx.mp3" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ep_sloucho-legacy",
+      "name": "Sloucho Legacy",
+      "kind": "ep",
+      "cover": { "id": "cover_ep_sloucho-legacy", "name": "Sloucho Legacy — Cover", "kind": "cover", "rarity": "rare", "image": "/art/cover_ep_sloucho-legacy.png" },
+      "unlocksCharacter": { "id": "char_ep_legacy-sloucho", "name": "Legacy Sloucho", "kind": "character", "rarity": "legendary-only-unlock", "image": "/chars/char_ep_legacy-sloucho.png" },
+      "songs": [
+        {
+          "id": "song_hold-it-down",
+          "name": "Hold it Down",
+          "kind": "song",
+          "stems": [
+            { "id": "stem_song_hold-it-down_drums",  "name": "Hold it Down — Drums",  "kind": "stem", "rarity": "common", "audio": "/audio/hold-it-down/drums.mp3" },
+            { "id": "stem_song_hold-it-down_bass",   "name": "Hold it Down — Bass",   "kind": "stem", "rarity": "common", "audio": "/audio/hold-it-down/bass.mp3" },
+            { "id": "stem_song_hold-it-down_music",  "name": "Hold it Down — Music",  "kind": "stem", "rarity": "common", "audio": "/audio/hold-it-down/music.mp3" },
+            { "id": "stem_song_hold-it-down_vocals", "name": "Hold it Down — Vocals", "kind": "stem", "rarity": "common", "audio": "/audio/hold-it-down/vocals.mp3" },
+            { "id": "stem_song_hold-it-down_fx",     "name": "Hold it Down — FX",     "kind": "stem", "rarity": "common", "audio": "/audio/hold-it-down/fx.mp3" }
+          ]
+        },
+        {
+          "id": "song_memory-walk",
+          "name": "Memory Walk",
+          "kind": "song",
+          "stems": [
+            { "id": "stem_song_memory-walk_drums",  "name": "Memory Walk — Drums",  "kind": "stem", "rarity": "common", "audio": "/audio/memory-walk/drums.mp3" },
+            { "id": "stem_song_memory-walk_bass",   "name": "Memory Walk — Bass",   "kind": "stem", "rarity": "common", "audio": "/audio/memory-walk/bass.mp3" },
+            { "id": "stem_song_memory-walk_music",  "name": "Memory Walk — Music",  "kind": "stem", "rarity": "common", "audio": "/audio/memory-walk/music.mp3" },
+            { "id": "stem_song_memory-walk_vocals", "name": "Memory Walk — Vocals", "kind": "stem", "rarity": "common", "audio": "/audio/memory-walk/vocals.mp3" },
+            { "id": "stem_song_memory-walk_fx",     "name": "Memory Walk — FX",     "kind": "stem", "rarity": "common", "audio": "/audio/memory-walk/fx.mp3" }
+          ]
+        },
+        {
+          "id": "song_tmd-my-dms",
+          "name": "TM’D my DM’S",
+          "kind": "song",
+          "stems": [
+            { "id": "stem_song_tmd-my-dms_drums",  "name": "TM’D my DM’S — Drums",  "kind": "stem", "rarity": "common", "audio": "/audio/tmd-my-dms/drums.mp3" },
+            { "id": "stem_song_tmd-my-dms_bass",   "name": "TM’D my DM’S — Bass",   "kind": "stem", "rarity": "common", "audio": "/audio/tmd-my-dms/bass.mp3" },
+            { "id": "stem_song_tmd-my-dms_music",  "name": "TM’D my DM’S — Music",  "kind": "stem", "rarity": "common", "audio": "/audio/tmd-my-dms/music.mp3" },
+            { "id": "stem_song_tmd-my-dms_vocals", "name": "TM’D my DM’S — Vocals", "kind": "stem", "rarity": "common", "audio": "/audio/tmd-my-dms/vocals.mp3" },
+            { "id": "stem_song_tmd-my-dms_fx",     "name": "TM’D my DM’S — FX",     "kind": "stem", "rarity": "common", "audio": "/audio/tmd-my-dms/fx.mp3" }
+          ]
+        },
+        {
+          "id": "song_casse-toi-ft-spooklet",
+          "name": "Casse Toi (ft. Spooklet)",
+          "kind": "song",
+          "stems": [
+            { "id": "stem_song_casse-toi-ft-spooklet_drums",  "name": "Casse Toi — Drums",  "kind": "stem", "rarity": "common", "audio": "/audio/casse-toi/drums.mp3" },
+            { "id": "stem_song_casse-toi-ft-spooklet_bass",   "name": "Casse Toi — Bass",   "kind": "stem", "rarity": "common", "audio": "/audio/casse-toi/bass.mp3" },
+            { "id": "stem_song_casse-toi-ft-spooklet_music",  "name": "Casse Toi — Music",  "kind": "stem", "rarity": "common", "audio": "/audio/casse-toi/music.mp3" },
+            { "id": "stem_song_casse-toi-ft-spooklet_vocals", "name": "Casse Toi — Vocals", "kind": "stem", "rarity": "common", "audio": "/audio/casse-toi/vocals.mp3" },
+            { "id": "stem_song_casse-toi-ft-spooklet_fx",     "name": "Casse Toi — FX",     "kind": "stem", "rarity": "common", "audio": "/audio/casse-toi/fx.mp3" }
+          ]
+        },
+        {
+          "id": "song_over-and-out",
+          "name": "Over & Out",
+          "kind": "song",
+          "stems": [
+            { "id": "stem_song_over-and-out_drums",  "name": "Over & Out — Drums",  "kind": "stem", "rarity": "common", "audio": "/audio/over-and-out/drums.mp3" },
+            { "id": "stem_song_over-and-out_bass",   "name": "Over & Out — Bass",   "kind": "stem", "rarity": "common", "audio": "/audio/over-and-out/bass.mp3" },
+            { "id": "stem_song_over-and-out_music",  "name": "Over & Out — Music",  "kind": "stem", "rarity": "common", "audio": "/audio/over-and-out/music.mp3" },
+            { "id": "stem_song_over-and-out_vocals", "name": "Over & Out — Vocals", "kind": "stem", "rarity": "common", "audio": "/audio/over-and-out/vocals.mp3" },
+            { "id": "stem_song_over-and-out_fx",     "name": "Over & Out — FX",     "kind": "stem", "rarity": "common", "audio": "/audio/over-and-out/fx.mp3" }
+          ]
+        },
+        {
+          "id": "song_when-inches-became-miles",
+          "name": "When Inches Became Miles",
+          "kind": "song",
+          "stems": [
+            { "id": "stem_song_when-inches-became-miles_drums",  "name": "When Inches Became Miles — Drums",  "kind": "stem", "rarity": "common", "audio": "/audio/when-inches-became-miles/drums.mp3" },
+            { "id": "stem_song_when-inches-became-miles_bass",   "name": "When Inches Became Miles — Bass",   "kind": "stem", "rarity": "common", "audio": "/audio/when-inches-became-miles/bass.mp3" },
+            { "id": "stem_song_when-inches-became-miles_music",  "name": "When Inches Became Miles — Music",  "kind": "stem", "rarity": "common", "audio": "/audio/when-inches-became-miles/music.mp3" },
+            { "id": "stem_song_when-inches-became-miles_vocals", "name": "When Inches Became Miles — Vocals", "kind": "stem", "rarity": "common", "audio": "/audio/when-inches-became-miles/vocals.mp3" },
+            { "id": "stem_song_when-inches-became-miles_fx",     "name": "When Inches Became Miles — FX",     "kind": "stem", "rarity": "common", "audio": "/audio/when-inches-became-miles/fx.mp3" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ep_npc",
+      "name": "NPC",
+      "kind": "ep",
+      "cover": { "id": "cover_ep_npc", "name": "NPC — Cover", "kind": "cover", "rarity": "rare", "image": "/art/cover_ep_npc.png" },
+      "unlocksCharacter": { "id": "char_ep_npc", "name": "NPC", "kind": "character", "rarity": "legendary-only-unlock", "image": "/chars/char_ep_npc.png" },
+      "songs": [
+        {
+          "id": "song_mind-traveller",
+          "name": "Mind Traveller",
+          "kind": "song",
+          "stems": [
+            { "id": "stem_song_mind-traveller_drums",  "name": "Mind Traveller — Drums",  "kind": "stem", "rarity": "common", "audio": "/audio/mind-traveller/drums.mp3" },
+            { "id": "stem_song_mind-traveller_bass",   "name": "Mind Traveller — Bass",   "kind": "stem", "rarity": "common", "audio": "/audio/mind-traveller/bass.mp3" },
+            { "id": "stem_song_mind-traveller_music",  "name": "Mind Traveller — Music",  "kind": "stem", "rarity": "common", "audio": "/audio/mind-traveller/music.mp3" },
+            { "id": "stem_song_mind-traveller_vocals", "name": "Mind Traveller — Vocals", "kind": "stem", "rarity": "common", "audio": "/audio/mind-traveller/vocals.mp3" },
+            { "id": "stem_song_mind-traveller_fx",     "name": "Mind Traveller — FX",     "kind": "stem", "rarity": "common", "audio": "/audio/mind-traveller/fx.mp3" }
+          ]
+        },
+        {
+          "id": "song_mutant",
+          "name": "Mutant",
+          "kind": "song",
+          "stems": [
+            { "id": "stem_song_mutant_drums",  "name": "Mutant — Drums",  "kind": "stem", "rarity": "common", "audio": "/audio/mutant/drums.mp3" },
+            { "id": "stem_song_mutant_bass",   "name": "Mutant — Bass",   "kind": "stem", "rarity": "common", "audio": "/audio/mutant/bass.mp3" },
+            { "id": "stem_song_mutant_music",  "name": "Mutant — Music",  "kind": "stem", "rarity": "common", "audio": "/audio/mutant/music.mp3" },
+            { "id": "stem_song_mutant_vocals", "name": "Mutant — Vocals", "kind": "stem", "rarity": "common", "audio": "/audio/mutant/vocals.mp3" },
+            { "id": "stem_song_mutant_fx",     "name": "Mutant — FX",     "kind": "stem", "rarity": "common", "audio": "/audio/mutant/fx.mp3" }
+          ]
+        },
+        {
+          "id": "song_come-around",
+          "name": "Come Around",
+          "kind": "song",
+          "stems": [
+            { "id": "stem_song_come-around_drums",  "name": "Come Around — Drums",  "kind": "stem", "rarity": "common", "audio": "/audio/come-around/drums.mp3" },
+            { "id": "stem_song_come-around_bass",   "name": "Come Around — Bass",   "kind": "stem", "rarity": "common", "audio": "/audio/come-around/bass.mp3" },
+            { "id": "stem_song_come-around_music",  "name": "Come Around — Music",  "kind": "stem", "rarity": "common", "audio": "/audio/come-around/music.mp3" },
+            { "id": "stem_song_come-around_vocals", "name": "Come Around — Vocals", "kind": "stem", "rarity": "common", "audio": "/audio/come-around/vocals.mp3" },
+            { "id": "stem_song_come-around_fx",     "name": "Come Around — FX",     "kind": "stem", "rarity": "common", "audio": "/audio/come-around/fx.mp3" }
+          ]
+        },
+        {
+          "id": "song_brand-new",
+          "name": "Brand New",
+          "kind": "song",
+          "stems": [
+            { "id": "stem_song_brand-new_drums",  "name": "Brand New — Drums",  "kind": "stem", "rarity": "common", "audio": "/audio/brand-new/drums.mp3" },
+            { "id": "stem_song_brand-new_bass",   "name": "Brand New — Bass",   "kind": "stem", "rarity": "common", "audio": "/audio/brand-new/bass.mp3" },
+            { "id": "stem_song_brand-new_music",  "name": "Brand New — Music",  "kind": "stem", "rarity": "common", "audio": "/audio/brand-new/music.mp3" },
+            { "id": "stem_song_brand-new_vocals", "name": "Brand New — Vocals", "kind": "stem", "rarity": "common", "audio": "/audio/brand-new/vocals.mp3" },
+            { "id": "stem_song_brand-new_fx",     "name": "Brand New — FX",     "kind": "stem", "rarity": "common", "audio": "/audio/brand-new/fx.mp3" }
+          ]
+        },
+        {
+          "id": "song_super-maramu-2000",
+          "name": "Super Maramu 2000",
+          "kind": "song",
+          "stems": [
+            { "id": "stem_song_super-maramu-2000_drums",  "name": "Super Maramu 2000 — Drums",  "kind": "stem", "rarity": "common", "audio": "/audio/super-maramu-2000/drums.mp3" },
+            { "id": "stem_song_super-maramu-2000_bass",   "name": "Super Maramu 2000 — Bass",   "kind": "stem", "rarity": "common", "audio": "/audio/super-maramu-2000/bass.mp3" },
+            { "id": "stem_song_super-maramu-2000_music",  "name": "Super Maramu 2000 — Music",  "kind": "stem", "rarity": "common", "audio": "/audio/super-maramu-2000/music.mp3" },
+            { "id": "stem_song_super-maramu-2000_vocals", "name": "Super Maramu 2000 — Vocals", "kind": "stem", "rarity": "common", "audio": "/audio/super-maramu-2000/vocals.mp3" },
+            { "id": "stem_song_super-maramu-2000_fx",     "name": "Super Maramu 2000 — FX",     "kind": "stem", "rarity": "common", "audio": "/audio/super-maramu-2000/fx.mp3" }
+          ]
+        },
+        {
+          "id": "song_make-it-work",
+          "name": "Make it Work",
+          "kind": "song",
+          "stems": [
+            { "id": "stem_song_make-it-work_drums",  "name": "Make it Work — Drums",  "kind": "stem", "rarity": "common", "audio": "/audio/make-it-work/drums.mp3" },
+            { "id": "stem_song_make-it-work_bass",   "name": "Make it Work — Bass",   "kind": "stem", "rarity": "common", "audio": "/audio/make-it-work/bass.mp3" },
+            { "id": "stem_song_make-it-work_music",  "name": "Make it Work — Music",  "kind": "stem", "rarity": "common", "audio": "/audio/make-it-work/music.mp3" },
+            { "id": "stem_song_make-it-work_vocals", "name": "Make it Work — Vocals", "kind": "stem", "rarity": "common", "audio": "/audio/make-it-work/vocals.mp3" },
+            { "id": "stem_song_make-it-work_fx",     "name": "Make it Work — FX",     "kind": "stem", "rarity": "common", "audio": "/audio/make-it-work/fx.mp3" }
+          ]
+        },
+        {
+          "id": "song_two-thousands",
+          "name": "Two Thousands",
+          "kind": "song",
+          "stems": [
+            { "id": "stem_song_two-thousands_drums",  "name": "Two Thousands — Drums",  "kind": "stem", "rarity": "common", "audio": "/audio/two-thousands/drums.mp3" },
+            { "id": "stem_song_two-thousands_bass",   "name": "Two Thousands — Bass",   "kind": "stem", "rarity": "common", "audio": "/audio/two-thousands/bass.mp3" },
+            { "id": "stem_song_two-thousands_music",  "name": "Two Thousands — Music",  "kind": "stem", "rarity": "common", "audio": "/audio/two-thousands/music.mp3" },
+            { "id": "stem_song_two-thousands_vocals", "name": "Two Thousands — Vocals", "kind": "stem", "rarity": "common", "audio": "/audio/two-thousands/vocals.mp3" },
+            { "id": "stem_song_two-thousands_fx",     "name": "Two Thousands — FX",     "kind": "stem", "rarity": "common", "audio": "/audio/two-thousands/fx.mp3" }
+          ]
+        },
+        {
+          "id": "song_rocks",
+          "name": "Rocks",
+          "kind": "song",
+          "stems": [
+            { "id": "stem_song_rocks_drums",  "name": "Rocks — Drums",  "kind": "stem", "rarity": "common", "audio": "/audio/rocks/drums.mp3" },
+            { "id": "stem_song_rocks_bass",   "name": "Rocks — Bass",   "kind": "stem", "rarity": "common", "audio": "/audio/rocks/bass.mp3" },
+            { "id": "stem_song_rocks_music",  "name": "Rocks — Music",  "kind": "stem", "rarity": "common", "audio": "/audio/rocks/music.mp3" },
+            { "id": "stem_song_rocks_vocals", "name": "Rocks — Vocals", "kind": "stem", "rarity": "common", "audio": "/audio/rocks/vocals.mp3" },
+            { "id": "stem_song_rocks_fx",     "name": "Rocks — FX",     "kind": "stem", "rarity": "common", "audio": "/audio/rocks/fx.mp3" }
+          ]
+        },
+        {
+          "id": "song_lights-on",
+          "name": "Lights On",
+          "kind": "song",
+          "stems": [
+            { "id": "stem_song_lights-on_drums",  "name": "Lights On — Drums",  "kind": "stem", "rarity": "common", "audio": "/audio/lights-on/drums.mp3" },
+            { "id": "stem_song_lights-on_bass",   "name": "Lights On — Bass",   "kind": "stem", "rarity": "common", "audio": "/audio/lights-on/bass.mp3" },
+            { "id": "stem_song_lights-on_music",  "name": "Lights On — Music",  "kind": "stem", "rarity": "common", "audio": "/audio/lights-on/music.mp3" },
+            { "id": "stem_song_lights-on_vocals", "name": "Lights On — Vocals", "kind": "stem", "rarity": "common", "audio": "/audio/lights-on/vocals.mp3" },
+            { "id": "stem_song_lights-on_fx",     "name": "Lights On — FX",     "kind": "stem", "rarity": "common", "audio": "/audio/lights-on/fx.mp3" }
+          ]
+        }
+      ]
+    }
+  ],
+  "singles": [
+    {
+      "id": "single_gimme-it-ft-curtisy",
+      "name": "Gimme It (ft. Curtisy)",
+      "kind": "single",
+      "cover": { "id": "cover_single_gimme-it-ft-curtisy", "name": "Gimme It — Cover", "kind": "cover", "rarity": "rare", "image": "/art/cover_single_gimme-it.png" },
+      "unlocksCharacter": { "id": "char_single_curtisy", "name": "Curtisy", "kind": "character", "rarity": "legendary-only-unlock", "image": "/chars/char_single_curtisy.png" },
+      "song": {
+        "id": "song_gimme-it",
+        "name": "Gimme It",
+        "kind": "song",
+        "stems": [
+          { "id": "stem_song_gimme-it_drums",  "name": "Gimme It — Drums",  "kind": "stem", "rarity": "common", "audio": "/audio/gimme-it/drums.mp3" },
+          { "id": "stem_song_gimme-it_bass",   "name": "Gimme It — Bass",   "kind": "stem", "rarity": "common", "audio": "/audio/gimme-it/bass.mp3" },
+          { "id": "stem_song_gimme-it_music",  "name": "Gimme It — Music",  "kind": "stem", "rarity": "common", "audio": "/audio/gimme-it/music.mp3" },
+          { "id": "stem_song_gimme-it_vocals", "name": "Gimme It — Vocals", "kind": "stem", "rarity": "common", "audio": "/audio/gimme-it/vocals.mp3" },
+          { "id": "stem_song_gimme-it_fx",     "name": "Gimme It — FX",     "kind": "stem", "rarity": "common", "audio": "/audio/gimme-it/fx.mp3" }
+        ]
+      }
+    },
+    {
+      "id": "single_rhinestones-ft-lil-skag-and-ahmed-with-love",
+      "name": "Rhinestones (ft. Lil Skag & Ahmed, with Love)",
+      "kind": "single",
+      "cover": { "id": "cover_single_rhinestones", "name": "Rhinestones — Cover", "kind": "cover", "rarity": "rare", "image": "/art/cover_single_rhinestones.png" },
+      "unlocksCharacter": { "id": "char_single_lil-skag-and-ahmed", "name": "Lil Skag & Ahmed", "kind": "character", "rarity": "legendary-only-unlock", "image": "/chars/char_single_lil-skag-and-ahmed.png" },
+      "song": {
+        "id": "song_rhinestones",
+        "name": "Rhinestones",
+        "kind": "song",
+        "stems": [
+          { "id": "stem_song_rhinestones_drums",  "name": "Rhinestones — Drums",  "kind": "stem", "rarity": "common", "audio": "/audio/rhinestones/drums.mp3" },
+          { "id": "stem_song_rhinestones_bass",   "name": "Rhinestones — Bass",   "kind": "stem", "rarity": "common", "audio": "/audio/rhinestones/bass.mp3" },
+          { "id": "stem_song_rhinestones_music",  "name": "Rhinestones — Music",  "kind": "stem", "rarity": "common", "audio": "/audio/rhinestones/music.mp3" },
+          { "id": "stem_song_rhinestones_vocals", "name": "Rhinestones — Vocals", "kind": "stem", "rarity": "common", "audio": "/audio/rhinestones/vocals.mp3" },
+          { "id": "stem_song_rhinestones_fx",     "name": "Rhinestones — FX",     "kind": "stem", "rarity": "common", "audio": "/audio/rhinestones/fx.mp3" }
+        ]
+      }
+    }
+  ]
+}
