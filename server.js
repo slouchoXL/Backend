@@ -803,15 +803,15 @@ app.post('/api/collection/add', async (req, res) => {
     const mapById = new Map(pending.results.map(it => [it.itemId, it]));
     const itemsToAdd = toAddIds.map(id => mapById.get(id)).filter(Boolean);
 
-    if (isUUID(req.playerId)) {
-      // Map pending items → RPC payload (one call handles dupes via qty)
-      const payloadItems = itemsToAdd.map(it => ({
-        itemId: it.itemId,
-        name:   it.name,
-        rarity: it.rarity,
-        artUrl: it.artUrl,
-        qty:    1
-      }));
+      if (isUUID(req.playerId)) {
+        // Map pending items → RPC payload (one call handles dupes via qty)
+        const payloadItems = itemsToAdd.map(it => ({
+          itemId: it.itemId,
+          name:   it.name,
+          rarity: it.rarity,
+          artUrl: it.artUrl,
+          qty:    1
+        }));
 
         const sb = requireAdmin();
         const { data, error } = await sb.rpc('add_items_and_award_shards', {
@@ -819,16 +819,17 @@ app.post('/api/collection/add', async (req, res) => {
           p_items: payloadItems
         });
         if (error) throw error;
-      await dbClearPendingOpen(req.playerId);
-        
+
+        await dbClearPendingOpen(req.playerId);
+
+        // only declare once
         let inv = await dbGetInventory(req.playerId);
         await materializeUnlocks(req.playerId, inv, canon);
         inv = await dbGetInventory(req.playerId);
 
-      // Return updated inventory
-      const inv = await dbGetInventory(req.playerId);
-      return res.json({ ok: true, inventory: inv });
-    } else {
+        // Return updated inventory
+        return res.json({ ok: true, inventory: inv });
+      } else {
       // anon fallback — just keep JSON file
       const inv = loadInventory(req.playerId);
       inv.items.push(...itemsToAdd);
