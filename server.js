@@ -806,10 +806,10 @@ app.post('/api/collection/add', async (req, res) => {
       if (isUUID(req.playerId)) {
         // Map pending items → RPC payload (one call handles dupes via qty)
         const payloadItems = itemsToAdd.map(it => ({
-          itemId: it.itemId,
+          item_id: it.itemId,
           name:   it.name,
           rarity: it.rarity,
-          artUrl: it.artUrl,
+          art_url: it.artUrl,
           qty:    1
         }));
 
